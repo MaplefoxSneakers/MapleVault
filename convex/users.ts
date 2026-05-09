@@ -39,7 +39,7 @@ export const getOwners = guestQuery({
     handler: async ctx => {
         return await ctx.db
             .query("users")
-            .filter(q => q.eq(q.field("role"), "member") || q.eq(q.field("role"), "admin"))
+            .filter(q => q.or(q.eq(q.field("role"), "member"), q.eq(q.field("role"), "admin")))
             .collect();
     },
 });

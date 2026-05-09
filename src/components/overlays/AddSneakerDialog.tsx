@@ -416,11 +416,11 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                                             {!selOwner ? "Select an owner" : selOwner.username}
                                         </div>
                                     </SelectTrigger>
-                                    <SelectContent>
+                                    <SelectContent className="w-(--anchor-width) min-w-auto">
                                         {(owners ?? []).map(o => (
-                                            <SelectItem value={o._id} key={o._id}>
+                                            <SelectItem value={o._id} key={o._id} showIndicator={false}>
                                                 <div className="size-2.5 rounded-full" style={{ backgroundColor: o.color }} />
-                                                {o.username}
+                                                <span className="truncate">{o.username}</span>
                                             </SelectItem>
                                         ))}
                                     </SelectContent>
@@ -446,17 +446,17 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                                         </ComboboxEmpty>
                                         <ComboboxList className="pb-0">
                                             {(owner: User) => (
-                                                <ComboboxItem key={owner._id} value={owner._id}>
-                                                    <div className="size-2.5 rounded-full" style={{ backgroundColor: owner.color }} />
-                                                    {owner.username}
+                                                <ComboboxItem key={owner._id} value={owner._id} className="pr-2">
+                                                    <div className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: owner.color }} />
+                                                    <span className="truncate">{owner.username}</span>
                                                 </ComboboxItem>
                                             )}
                                         </ComboboxList>
                                         {!originalOwnerName && (
                                             <ComboboxList className="pt-0">
-                                                <ComboboxItem value="unknown">
-                                                    <div className="size-2.5 bg-muted-foreground rounded-full" />
-                                                    Unknown
+                                                <ComboboxItem value="unknown" className="pr-2">
+                                                    <div className="size-2.5 shrink-0 bg-muted-foreground rounded-full" />
+                                                    <span className="truncate">Unknown</span>
                                                 </ComboboxItem>
                                             </ComboboxList>
                                         )}

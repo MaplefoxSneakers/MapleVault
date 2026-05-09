@@ -131,8 +131,8 @@ function SneakerDetails() {
                     </>
                 }
             />
-            <div className="max-w-7xl mx-auto pt-4 max-md:pb-40 max-md:pwa:pb-44 px-6 md:px-8 flex flex-col gap-6">
-                <div className="w-full flex gap-5 sm:gap-6 md:gap-8">
+            <div className="max-w-7xl mx-auto pt-4 max-md:pb-40 max-md:pwa:pb-44 flex flex-col gap-6">
+                <div className="w-full px-6 md:px-8 flex gap-5 sm:gap-6 md:gap-8">
                     {sneaker ? (
                         <>
                             <SneakerPhoto sneaker={sneaker} className="size-22 xs:size-24 sm:size-28 md:size-32 rounded-xl ring ring-border shadow-2xl shadow-primary/25 animate-in fade-in zoom-in duration-500" />
@@ -154,7 +154,7 @@ function SneakerDetails() {
                 <div className="flex flex-col gap-4">
                     {sneaker ? (
                         (sneaker.size || sneaker.brand._id || (showLocation && sneaker.location._id) || sneaker.decommissioned || hasPick) && (
-                            <div className="flex -m-1 p-1 gap-3 flex-1 overflow-x-auto scrollbar-hidden">
+                            <div className="flex -m-1 px-7 md:px-9 py-px gap-3 flex-1 overflow-x-auto scrollbar-hidden">
                                 {sneaker.size && <p className="w-fit px-3 py-1.5 flex items-center shrink-0 text-sm font-semibold bg-accent rounded-md ring ring-border">{sneaker.size}</p>}
                                 {sneaker.brand._id && (
                                     <div className="w-fit px-3 py-1.5 flex items-center gap-2.5 shrink-0 bg-accent rounded-md ring ring-border">
@@ -185,7 +185,7 @@ function SneakerDetails() {
                     ) : (
                         <Skeleton className="w-3/7 h-8 rounded-md" />
                     )}
-                    <div className="flex max-md:flex-col gap-4 md:gap-6">
+                    <div className="px-6 md:px-8 flex max-md:flex-col gap-4 md:gap-6">
                         {showDescription &&
                             (sneaker ? (
                                 <div className="h-fit min-h-40 flex-1 p-4 bg-accent rounded-xl ring ring-border space-y-2">
