@@ -32,7 +32,7 @@ export const SneakerInsert = z.object({
     decommissioned: z.boolean(),
     stockxUrl: z.string().optional(),
     goatUrl: z.string().optional(),
-    authenticyTag: z.string().optional(),
+    authenticityTag: z.string().optional(),
     pickFor: zid("users").optional(),
     pickUntil: z.string().optional(),
     usageControl: z.string().optional(),

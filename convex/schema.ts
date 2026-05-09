@@ -30,7 +30,7 @@ export default defineSchema({
         decommissioned: v.boolean(),
         stockxUrl: v.optional(v.string()),
         goatUrl: v.optional(v.string()),
-        authenticyTag: v.optional(v.string()),
+        authenticityTag: v.optional(v.string()),
         pickFor: v.optional(v.id("users")),
         pickUntil: v.optional(v.string()),
         usageControl: v.optional(v.string()),

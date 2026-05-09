@@ -58,7 +58,7 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
     const [decommissioned, setDecommissioned] = useState(sneaker?.decommissioned ?? false);
     const [stockxUrl, setStockxUrl] = useState(sneaker?.stockxUrl ?? "");
     const [goatUrl, setGoatUrl] = useState(sneaker?.goatUrl ?? "");
-    const [authenticyTag, setAuthenticyTag] = useState(sneaker?.authenticyTag ?? "");
+    const [authenticityTag, setAuthenticityTag] = useState(sneaker?.authenticityTag ?? "");
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string>();
     const originalOwnerCombobox = useRef<HTMLDivElement>(null);
@@ -140,7 +140,7 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                     decommissioned,
                     stockxUrl: stockxUrl || undefined,
                     goatUrl: goatUrl || undefined,
-                    authenticyTag: authenticyTag || undefined,
+                    authenticityTag: authenticityTag || undefined,
                 },
             });
             if (!result.success) {
@@ -168,7 +168,7 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                     decommissioned,
                     stockxUrl: stockxUrl || undefined,
                     goatUrl: goatUrl || undefined,
-                    authenticyTag: authenticyTag || undefined,
+                    authenticityTag: authenticityTag || undefined,
                 },
             });
             if (!result.success) {
@@ -484,8 +484,8 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                                 <Input id="sneakerStockX" name="stockx" inputMode="url" placeholder="https://stockx.com/nike-air-max-plus-triple-black" disabled={isSaving} value={stockxUrl} onChange={e => setStockxUrl(e.target.value)} />
                             </Field>
                             <Field className="flex-1">
-                                <Label htmlFor="sneakerTag">Authenticy Tag</Label>
-                                <Input id="sneakerTag" name="tag" placeholder="58070046JUN" disabled={isSaving} value={authenticyTag} onChange={e => setAuthenticyTag(e.target.value)} />
+                                <Label htmlFor="sneakerTag">Authenticity Tag</Label>
+                                <Input id="sneakerTag" name="tag" placeholder="58070046JUN" disabled={isSaving} value={authenticityTag} onChange={e => setAuthenticityTag(e.target.value)} />
                             </Field>
                         </div>
                         <Field data-invalid={goatUrl.length !== 0 && !isValidGoatUrl(goatUrl)}>

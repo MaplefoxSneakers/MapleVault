@@ -268,16 +268,16 @@ function SneakerDetails() {
                                             )}
                                         </div>
                                     )}
-                                    {(sneaker?.style || sneaker?.authenticyTag) && (
+                                    {(sneaker?.style || sneaker?.authenticityTag) && (
                                         <div className="flex gap-x-5 gap-y-4">
                                             {sneaker?.style && (
                                                 <InfoBox title="Style Code">
                                                     <p className="w-fit px-3 py-1.5 flex items-center text-sm font-semibold bg-muted rounded-md">{sneaker.style}</p>
                                                 </InfoBox>
                                             )}
-                                            {sneaker?.authenticyTag && (
-                                                <InfoBox title="Authenticy Tag">
-                                                    <p className="w-fit px-3 py-1.5 flex items-center text-sm font-semibold bg-muted rounded-md">{sneaker.authenticyTag}</p>
+                                            {sneaker?.authenticityTag && (
+                                                <InfoBox title="Authenticity Tag">
+                                                    <p className="w-fit px-3 py-1.5 flex items-center text-sm font-semibold bg-muted rounded-md">{sneaker.authenticityTag}</p>
                                                 </InfoBox>
                                             )}
                                         </div>
