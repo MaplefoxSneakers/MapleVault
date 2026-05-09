@@ -69,25 +69,8 @@ export const getConvexQueryAuthPayload = createServerFn({ method: "GET" }).handl
     return await generateAuthPayload({ data: {} });
 });
 
-export function getClient() {
-    const url = process.env.CONVEX_URL ?? process.env.VITE_CONVEX_URL;
-    if (!url) throw new Error("Missing Convex URL. Set CONVEX_URL or VITE_CONVEX_URL to your Convex deployment URL.");
-
-    return new ConvexHttpClient(url, { logger: false });
-}
-
-function wait(ms: number) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
-
-async function waitForMinimumDuration(startedAt: number) {
-    const elapsed = Date.now() - startedAt;
-
-    if (elapsed < MIN_AUTH_RESPONSE_MS) await wait(MIN_AUTH_RESPONSE_MS - elapsed);
-}
-
 export const generateAuthPayload = createServerFn({ method: "GET" })
-    .inputValidator((data: { requireAuth?: boolean }) => data)
+    .inputValidator(z.object({ requireAuth: z.boolean().optional() }))
     .handler(async ({ data }) => {
         const { getSession } = await import("@tanstack/react-start/server");
         const config = await getConfig();
@@ -108,6 +91,23 @@ export const generateAuthPayload = createServerFn({ method: "GET" })
 
         return { signature, timestamp, authRole };
     });
+
+export function getClient() {
+    const url = process.env.CONVEX_URL ?? process.env.VITE_CONVEX_URL;
+    if (!url) throw new Error("Missing Convex URL. Set CONVEX_URL or VITE_CONVEX_URL to your Convex deployment URL.");
+
+    return new ConvexHttpClient(url, { logger: false });
+}
+
+function wait(ms: number) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function waitForMinimumDuration(startedAt: number) {
+    const elapsed = Date.now() - startedAt;
+
+    if (elapsed < MIN_AUTH_RESPONSE_MS) await wait(MIN_AUTH_RESPONSE_MS - elapsed);
+}
 
 function parseScryptHash(encodedHash: string) {
     const parts = encodedHash.split("$");
