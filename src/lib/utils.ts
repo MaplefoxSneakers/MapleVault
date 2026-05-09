@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
+import { format, parseISO } from "date-fns";
 import type { Search, Sneaker } from "@/lib/models";
 import type { Config } from "@/lib/useConfig";
 
@@ -35,6 +36,21 @@ export function filterBySearch(sneakers: Sneaker[], search: Search) {
             (!search.type || sneaker.type === search.type) &&
             (search.decommissioned === undefined ? !sneaker.decommissioned : search.decommissioned ? sneaker.decommissioned : true),
     );
+}
+
+export type DatePrecision = "day" | "month" | "year";
+
+export function getDatePrecision(dateStr?: string): DatePrecision {
+    if (!dateStr) return "day";
+    if (dateStr.length === 4) return "year";
+    if (dateStr.length === 7) return "month";
+    return "day";
+}
+
+export function formatPartialDate(dateStr: string, { year = "yyyy", month = "MMMM yyyy", day = "PPP" }: { year?: string; month?: string; day?: string } = {}) {
+    const precision = getDatePrecision(dateStr);
+    const date = parseISO(dateStr);
+    return dateStr ? (precision === "year" ? format(date, year) : precision === "month" ? format(date, month) : format(date, day)) : null;
 }
 
 type DocWithDate = { date?: string; _creationTime: number };

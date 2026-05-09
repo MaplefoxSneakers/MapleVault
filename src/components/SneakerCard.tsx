@@ -4,7 +4,7 @@ import { format, getDate, getMonth, parseISO } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { SneakerPhoto } from "@/components/SneakerPhoto";
 import { useConfig } from "@/lib/useConfig";
-import { cn } from "@/lib/utils";
+import { cn, getDatePrecision } from "@/lib/utils";
 import { Route } from "@/routes/__root";
 import type { Sneaker } from "@/lib/models";
 
@@ -19,8 +19,9 @@ export function SneakerCard({ sneaker, birthday }: SneakerCardProps) {
     const canShowLocation = !config.publicPage || config.locationVisibility === "public" || (config.locationVisibility === "guests" && auth.isAuthenticated) || (config.locationVisibility === "protected" && auth.isAuthenticated && ["member", "admin"].includes(auth.role ?? ""));
 
     const today = new Date();
+    const precision = getDatePrecision(sneaker.date);
     const birthdayDate = sneaker.date ? parseISO(sneaker.date) : null;
-    const isBirthdayToday = birthdayDate ? getDate(birthdayDate) === getDate(today) && getMonth(birthdayDate) === getMonth(today) : false;
+    const isBirthdayToday = birthdayDate && precision === "day" ? getDate(birthdayDate) === getDate(today) && getMonth(birthdayDate) === getMonth(today) : false;
     const birthdayLabel = birthdayDate ? (isBirthdayToday ? "Today" : format(birthdayDate, "d MMM")) : "";
 
     return (

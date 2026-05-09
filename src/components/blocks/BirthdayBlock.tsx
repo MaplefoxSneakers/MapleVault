@@ -4,7 +4,7 @@ import { IconCake } from "@tabler/icons-react";
 import { SneakerCard } from "@/components/SneakerCard";
 import bridge from "@/data/bridge";
 import { useConfig } from "@/lib/useConfig";
-import { hasSearched } from "@/lib/utils";
+import { getDatePrecision, hasSearched } from "@/lib/utils";
 import type { Search } from "@/lib/models";
 
 interface BirthdayBlockProps {
@@ -22,7 +22,7 @@ export function BirthdayBlock({ search }: BirthdayBlockProps) {
     const nextWeek = endOfDay(addDays(today, 7));
     const upcomingBirthdays = (sneakers ?? [])
         .filter(s => {
-            if (!s.date) return false;
+            if (!s.date || getDatePrecision(s.date) !== "day") return false;
 
             const birthdayDate = parseISO(s.date);
             let currentYearBirthday = startOfDay(setYear(birthdayDate, getYear(today)));

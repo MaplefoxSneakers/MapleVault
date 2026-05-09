@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { IconChevronDown, IconTrash } from "@tabler/icons-react";
-import { format } from "date-fns";
+import { format, setDate as setDayOfMonth, setMonth, setYear } from "date-fns";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { Calendar } from "@/components/ui/calendar";
@@ -18,6 +18,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
 import bridge from "@/data/bridge";
+import { formatPartialDate, getDatePrecision, type DatePrecision } from "@/lib/utils";
 import type { Sneaker, User } from "@/lib/models";
 
 interface AddSneakerDialogProps {
@@ -45,7 +46,8 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
     const [description, setDescription] = useState(sneaker?.description ?? "");
     const [location, setLocation] = useState(sneaker?.location._id ?? "");
     const [owner, setOwner] = useState(sneaker?.owner._id ?? "");
-    const [date, setDate] = useState<Date | null>(sneaker?.date ? new Date(sneaker.date) : null);
+    const [date, setDate] = useState(sneaker?.date ?? "");
+    const [precision, setPrecision] = useState<DatePrecision>(getDatePrecision(sneaker?.date));
     const [style, setStyle] = useState(sneaker?.style ?? "");
     const [type, setType] = useState<Sneaker["type"]>(sneaker?.type ?? "Sneakers");
     const [originalOwnerType, setOriginalOwnerType] = useState<"local" | "outside">(sneaker?.originalOwner._id ? "local" : sneaker?.originalOwner.username ? "outside" : "local");
@@ -130,7 +132,7 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                     description: description || undefined,
                     location: location || undefined,
                     owner: owner || undefined,
-                    date: date?.toISOString(),
+                    date: date || undefined,
                     style: style || undefined,
                     type,
                     originalOwner: !originalOwnerId && !originalOwnerName ? undefined : originalOwnerType === "local" ? { type: "local", id: originalOwnerId } : { type: "outside", name: originalOwnerName },
@@ -158,7 +160,7 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                     description: description || undefined,
                     location: location || undefined,
                     owner: owner || undefined,
-                    date: date?.toISOString(),
+                    date: date || undefined,
                     style: style || undefined,
                     type,
                     originalOwner: !originalOwnerId && !originalOwnerName ? undefined : originalOwnerType === "local" ? { type: "local", id: originalOwnerId } : { type: "outside", name: originalOwnerName },
@@ -182,6 +184,55 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
         setIsSaving(false);
     }
 
+    const selBrand = brands?.find(b => b._id === brand);
+    const selLocation = locations?.find(l => l._id === location) ?? "Outside";
+    const selOwner = owners?.find(o => o._id === owner);
+    const years = Array.from({ length: new Date().getFullYear() - 1990 + 1 }, (_, i) => 1990 + i).reverse();
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const getDate = () => new Date(date || Date.now());
+
+    function getNormalizedDate({ year, month }: { year?: number; month?: number } = {}) {
+        const now = new Date();
+
+        let nextYear = now.getFullYear();
+        let nextMonth = now.getMonth() + 1;
+        let nextDay = now.getDate();
+
+        if (date) {
+            const parts = date.split("-").map(Number);
+
+            if (parts[0]) nextYear = parts[0];
+            if (parts[1]) nextMonth = parts[1];
+            if (parts[2]) nextDay = parts[2];
+        }
+
+        if (year != null) nextYear = year;
+        if (month != null) nextMonth = month;
+
+        let next = now;
+        next = setYear(next, nextYear);
+        next = setMonth(next, nextMonth - 1);
+        next = setDayOfMonth(next, nextDay);
+
+        return next;
+    }
+
+    function setDateWithPrecision({ year, month }: { year?: number; month?: number } = {}) {
+        const next = getNormalizedDate({ year, month });
+
+        switch (precision) {
+            case "year":
+                setDate(format(next, "yyyy"));
+                break;
+            case "month":
+                setDate(format(next, "yyyy-MM"));
+                break;
+            case "day":
+                setDate(format(next, "yyyy-MM-dd"));
+                break;
+        }
+    }
+
     useEffect(() => {
         if (!sneaker?.originalOwner._id) return;
 
@@ -189,9 +240,10 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
         if (match) setOriginalOwnerName(match.username);
     }, [owners, sneaker]);
 
-    const selBrand = brands?.find(b => b._id === brand);
-    const selLocation = locations?.find(l => l._id === location) ?? "Outside";
-    const selOwner = owners?.find(o => o._id === owner);
+    useEffect(() => {
+        if (!date) return;
+        setDateWithPrecision();
+    }, [precision]);
 
     return (
         <form className="contents" onSubmit={handleSubmit}>
@@ -303,13 +355,53 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                                         disabled={isSaving}
                                         render={
                                             <Button variant={"outline"} data-empty={!date} className="pl-2.5 justify-between font-normal data-[empty=true]:text-muted-foreground">
-                                                {date ? format(date, "PPP") : <span>Pick a date</span>}
+                                                {formatPartialDate(date ?? "", { year: "yyyy", month: "MMMM yyyy", day: "PPP" }) ?? "Pick a date"}
                                                 <IconChevronDown data-icon="inline-end" />
                                             </Button>
                                         }
                                     />
-                                    <PopoverContent className="w-auto p-0" align="start">
-                                        <Calendar mode="single" captionLayout="dropdown" required selected={date ?? undefined} defaultMonth={date ?? undefined} onSelect={setDate} />
+                                    <PopoverContent className="w-74 p-3 flex flex-col gap-4 rounded-xl" align="start">
+                                        <ButtonGroup className="w-full">
+                                            <Button variant={precision === "day" ? "default" : "outline"} className="h-8 flex-1 text-xs" onClick={() => setPrecision("day")}>
+                                                Day
+                                            </Button>
+                                            <Button variant={precision === "month" ? "default" : "outline"} className="h-8 flex-1 text-xs" onClick={() => setPrecision("month")}>
+                                                Month
+                                            </Button>
+                                            <Button variant={precision === "year" ? "default" : "outline"} className="h-8 flex-1 text-xs" onClick={() => setPrecision("year")}>
+                                                Year
+                                            </Button>
+                                        </ButtonGroup>
+                                        {precision === "day" ? (
+                                            <Calendar mode="single" captionLayout="dropdown" required selected={getDate()} defaultMonth={getNormalizedDate()} className="w-full p-0" onSelect={d => setDate(format(d, "yyyy-MM-dd"))} />
+                                        ) : (
+                                            <div className="flex gap-2">
+                                                {precision === "month" && (
+                                                    <Select value={getDate().getMonth().toString()} onValueChange={v => setDateWithPrecision({ month: v ? +v : undefined })}>
+                                                        <SelectTrigger className="flex-2">{months[getDate().getMonth()]}</SelectTrigger>
+                                                        <SelectContent>
+                                                            {months.map((m, i) => (
+                                                                <SelectItem key={m} value={i.toString()}>
+                                                                    {m}
+                                                                </SelectItem>
+                                                            ))}
+                                                        </SelectContent>
+                                                    </Select>
+                                                )}
+                                                <Select value={getDate().getFullYear().toString()} onValueChange={v => setDateWithPrecision({ year: v ? +v : undefined })}>
+                                                    <SelectTrigger className="flex-1">
+                                                        <SelectValue />
+                                                    </SelectTrigger>
+                                                    <SelectContent>
+                                                        {years.map(y => (
+                                                            <SelectItem key={y} value={y.toString()}>
+                                                                {y}
+                                                            </SelectItem>
+                                                        ))}
+                                                    </SelectContent>
+                                                </Select>
+                                            </div>
+                                        )}
                                     </PopoverContent>
                                 </Popover>
                             </Field>

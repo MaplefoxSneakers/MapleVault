@@ -15,7 +15,7 @@ import { DeleteSneakerDialog } from "@/components/overlays/DeleteSneakerDialog";
 import { checkAuth } from "@/data/auth";
 import bridge from "@/data/bridge";
 import { useConfig } from "@/lib/useConfig";
-import { cn } from "@/lib/utils";
+import { cn, formatPartialDate, getDatePrecision } from "@/lib/utils";
 
 export const Route = createFileRoute("/sneakers/$id")({
     component: SneakerDetails,
@@ -66,7 +66,7 @@ function SneakerDetails() {
                 const today = startOfDay(new Date());
                 const nextWeek = endOfDay(addDays(today, 7));
 
-                if (sneaker.date) {
+                if (sneaker.date && getDatePrecision(sneaker.date) === "day") {
                     const birthdayDate = parseISO(sneaker.date);
                     let currentYearBirthday = startOfDay(setYear(birthdayDate, getYear(today)));
 
@@ -210,16 +210,22 @@ function SneakerDetails() {
                                         <InfoBox title="Acquisition Date">
                                             <div className="flex items-center gap-2">
                                                 <div className="w-fit px-3 py-1.5 flex items-center text-sm font-semibold bg-muted rounded-md">
-                                                    {format(acqDate, "dd")}
-                                                    <span className="px-1.5 text-muted-foreground">/</span>
-                                                    {format(acqDate, "MM")}
-                                                    <span className="px-1.5 text-muted-foreground">/</span>
-                                                    {format(acqDate, "yyyy")}
+                                                    {getDatePrecision(sneaker.date) === "day" ? (
+                                                        <>
+                                                            {format(acqDate, "dd")}
+                                                            <span className="px-1.5 text-muted-foreground">/</span>
+                                                            {format(acqDate, "MM")}
+                                                            <span className="px-1.5 text-muted-foreground">/</span>
+                                                            {format(acqDate, "yyyy")}
+                                                        </>
+                                                    ) : (
+                                                        formatPartialDate(sneaker.date)
+                                                    )}
                                                 </div>
                                                 {bdayStats && (
-                                                    <div className="w-fit px-3 py-1.5 flex items-center gap-1.5 text-amber-500 text-sm font-semibold bg-amber-500/15 rounded-md">
+                                                    <div className="w-fit px-3 py-1.5 flex items-center gap-1.5 text-primary text-sm font-semibold bg-primary/10 rounded-md">
                                                         {bdayStats.years} {bdayStats.years === 1 ? "year" : "years"}
-                                                        <span className="text-amber-500/60">{bdayStats.daysUntil === 0 ? "today!" : `in ${bdayStats.daysUntil} ${bdayStats.daysUntil === 1 ? "day" : "days"}`}</span>
+                                                        <span className="opacity-50">{bdayStats.daysUntil === 0 ? "today!" : `in ${bdayStats.daysUntil} ${bdayStats.daysUntil === 1 ? "day" : "days"}`}</span>
                                                     </div>
                                                 )}
                                             </div>
