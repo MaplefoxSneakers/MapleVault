@@ -55,7 +55,7 @@ SneakrVault is a self-hosted application so, in order to start using it, you nee
 8. Click on "Create" and let the process finish, if it fails do not worry and proceed to the next step;
 9. Once the deployment is finished, head over to Vercel's main page, select the project you created and head to "Environment Variables", there you want to add the following variables:
     - **Key:** `SESSION_SECRET` <br />
-      **Value:** Go to a website like [RandomKeygen](https://randomkeygen.com/encryption-key) and generate a 128 bit hexadecimal key, copy the AES-128 key and paste it as value <br />
+      **Value:** Go to a website like [RandomKeygen](https://randomkeygen.com/encryption-key) and generate a 256 bit hexadecimal key, copy the AES-256 key and paste it as value <br />
       **Environments:** Production and Preview <br />
       **Sensitive:** Yes
     - **Key:** `CONVEX_URL` <br />
@@ -67,7 +67,7 @@ SneakrVault is a self-hosted application so, in order to start using it, you nee
       **Environments:** Production and Preview <br />
       **Sensitive:** Yes
     - **Key:** `CONVEX_SERVER_SECRET` <br />
-      **Value:** Go back again to [RandomKeygen](https://randomkeygen.com/encryption-key) and generate another 128 bit hexadecimal key, copy the AES-128 key and paste it as value <br />
+      **Value:** Go back again to [RandomKeygen](https://randomkeygen.com/encryption-key) and generate another 256 bit hexadecimal key, copy the AES-256 key and paste it as value <br />
       **Environments:** Production and Preview <br />
       **Sensitive:** Yes
 
