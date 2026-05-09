@@ -127,7 +127,7 @@ function ManagePage() {
                                     <ConfigItem title="Default type filter" description="Choose the default type of pairs to show on the library." wrap="mobile">
                                         <PairTypeSelect value={config.defaultTypeFilter} onChange={v => updateConfig.mutate({ ...config, defaultTypeFilter: v })} />
                                     </ConfigItem>
-                                    <ConfigItem title="Show decommisioned pairs" description="Whether decommissioned pairs should be displayed in the library by default, with no need to enable them on the filters.">
+                                    <ConfigItem title="Show decommissioned pairs" description="Whether decommissioned pairs should be displayed in the library by default, with no need to enable them on the filters.">
                                         <Switch checked={config.defaultShowDecommissioned} onCheckedChange={v => updateConfig.mutate({ ...config, defaultShowDecommissioned: v })} />
                                     </ConfigItem>
                                     <ConfigItem title="SneakPick" description="Enables/Disabled the sneak pick feature. This allows users to select pairs to them to wear or pick for other users.">
