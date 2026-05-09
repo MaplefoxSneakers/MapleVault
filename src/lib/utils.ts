@@ -3,6 +3,8 @@ import { twMerge } from "tailwind-merge";
 import type { Search, Sneaker } from "@/lib/models";
 import type { Config } from "@/lib/useConfig";
 
+export type OverrideProps<TBase, TOverride> = Omit<TBase, keyof TOverride> & TOverride;
+
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }

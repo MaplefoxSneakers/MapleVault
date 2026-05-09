@@ -222,7 +222,7 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                         </div>
                         <Field>
                             <Label htmlFor="sneakerDescription">Description</Label>
-                            <Textarea id="sneakerDescription" name="description" className="h-25 resize-none" placeholder="Bought in London..." disabled={isSaving} value={description} onChange={e => setDescription(e.target.value)} />
+                            <Textarea id="sneakerDescription" name="description" className="h-25 resize-none" placeholder="Bought in London during summer vacation..." disabled={isSaving} value={description} onChange={e => setDescription(e.target.value)} />
                         </Field>
                     </FieldGroup>
                 </TabsContent>

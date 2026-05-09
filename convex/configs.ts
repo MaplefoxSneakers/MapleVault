@@ -11,6 +11,8 @@ export const ConfigUpdate = z.object({
     homepageSections: z.array(z.string()).optional(),
     coverFrame: z.boolean().optional(),
     showCountOnSearch: z.boolean().optional(),
+    leastUsedDuration: z.number().optional(),
+    leastUsedDelayDuration: z.number().optional(),
     publicPage: z.boolean().optional(),
     locationVisibility: z.union([z.literal("public"), z.literal("guests"), z.literal("protected")]).optional(),
     descriptionVisibility: z.union([z.literal("public"), z.literal("guests"), z.literal("protected")]).optional(),

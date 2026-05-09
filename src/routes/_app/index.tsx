@@ -2,13 +2,10 @@ import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { IconFilter2, IconPlus, IconSearch, IconX } from "@tabler/icons-react";
+import { BlockManager } from "@/components/blocks/BlockManager";
 import { Button } from "@/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { BirthdayBlock } from "@/components/blocks/BirthdayBlock";
-import { CountBlock } from "@/components/blocks/CountBlock";
-import { GridBlock } from "@/components/blocks/GridBlock";
-import { SneakPickBlock } from "@/components/blocks/SneakPickBlock";
 import { AddSneakerDialog } from "@/components/overlays/AddSneakerDialog";
 import { Header } from "@/components/Header";
 import { UserMenu } from "@/components/UserMenu";
@@ -144,13 +141,7 @@ function Index() {
                 outScrolling={setScrolling}
             />
             <div className="max-w-7xl mx-auto pt-4 pb-20 flex flex-col gap-8">
-                {config.homepageSections.map((section, idx) => {
-                    if (section === "SneakPick") return config.sneakPickEnabled && <SneakPickBlock key={idx} search={search} />;
-                    else if (section === "Birthday") return <BirthdayBlock key={idx} search={search} />;
-                    else if (section === "Grid") return <GridBlock key={idx} search={search} onAdd={addSneaker} />;
-                    else if (section === "Count") return <CountBlock key={idx} search={search} />;
-                    else return null;
-                })}
+                <BlockManager search={search} onAdd={addSneaker} />
             </div>
         </div>
     );

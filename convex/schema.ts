@@ -33,6 +33,7 @@ export default defineSchema({
         authenticyTag: v.optional(v.string()),
         pickFor: v.optional(v.id("users")),
         pickUntil: v.optional(v.string()),
+        usageControl: v.optional(v.string()),
     })
         .index("by_brand", ["brand"])
         .index("by_location", ["location"])
@@ -72,6 +73,8 @@ export default defineSchema({
         homepageSections: v.optional(v.array(v.string())),
         coverFrame: v.optional(v.boolean()),
         showCountOnSearch: v.optional(v.boolean()),
+        leastUsedDuration: v.optional(v.number()),
+        leastUsedDelayDuration: v.optional(v.number()),
         publicPage: v.optional(v.boolean()),
         locationVisibility: v.optional(v.union(v.literal("public"), v.literal("guests"), v.literal("protected"))),
         descriptionVisibility: v.optional(v.union(v.literal("public"), v.literal("guests"), v.literal("protected"))),

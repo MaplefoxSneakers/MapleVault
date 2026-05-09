@@ -35,6 +35,7 @@ export const SneakerInsert = z.object({
     authenticyTag: z.string().optional(),
     pickFor: zid("users").optional(),
     pickUntil: z.string().optional(),
+    usageControl: z.string().optional(),
 });
 export const SneakerUpdate = SneakerInsert.partial().extend({ _id: zid("sneakers"), photo: zid("_storage").nullish() });
 export const SneakerRemove = z.object({ _id: zid("sneakers") });

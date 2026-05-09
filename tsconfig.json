@@ -22,7 +22,6 @@
         "noUncheckedSideEffectImports": true,
         "baseUrl": ".",
         "paths": {
-            "#/*": ["./*"],
             "@/*": ["./src/*"],
             "@db/*": ["./convex/_generated/*"]
         }

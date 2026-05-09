@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { IconArrowDown, IconArrowUp, IconCake, IconCheck, IconExternalLink, IconForbid2, IconHexagon, IconLayoutGrid, IconMapPin, IconNumber123, IconPencil, IconPlus, IconRosetteDiscountCheck, IconRuler2, IconTrash, IconUser } from "@tabler/icons-react";
+import { IconArrowDown, IconArrowUp, IconCheck, IconExternalLink, IconForbid2, IconMapPin, IconPencil, IconPlus, IconRosetteDiscountCheck, IconRuler2, IconTrash, IconUser } from "@tabler/icons-react";
+import { availableBlocks, blockIcons, type Block } from "@/components/blocks/BlockManager";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -20,8 +22,8 @@ import { checkAuth } from "@/data/auth";
 import bridge from "@/data/bridge";
 import { defaultConfig, useConfig, type Config } from "@/lib/useConfig";
 import { useLogout } from "@/lib/useLogout";
-import { cn } from "@/lib/utils";
-import packageJson from "#/package.json";
+import { cn, type OverrideProps } from "@/lib/utils";
+import packageJson from "@/../package.json";
 
 export const Route = createFileRoute("/_app/manage/{-$tab}")({
     component: ManagePage,
@@ -148,6 +150,12 @@ function ManagePage() {
                                     </ConfigItem>
                                     <ConfigItem title="Display count when searching" description="Whether to display the count when searching pairs.">
                                         <Switch checked={config.showCountOnSearch} onCheckedChange={v => updateConfig.mutate({ ...config, showCountOnSearch: v })} />
+                                    </ConfigItem>
+                                    <ConfigItem title="Least used pairs filter" description={'How long should take for a pair to be considered "least used" (in days).'}>
+                                        <InputNumber value={config.leastUsedDuration} placeholder={defaultConfig.leastUsedDuration.toString()} min={1} max={365} onChange={v => updateConfig.mutate({ ...config, leastUsedDuration: v })} />
+                                    </ConfigItem>
+                                    <ConfigItem title="Least used delay duration" description={'How long should a pair be delayed until it is considered "least used" again (in days).'}>
+                                        <InputNumber value={config.leastUsedDelayDuration} placeholder={defaultConfig.leastUsedDelayDuration.toString()} min={1} max={365} onChange={v => updateConfig.mutate({ ...config, leastUsedDelayDuration: v })} />
                                     </ConfigItem>
                                 </ConfigSection>
                                 <ConfigSection title="Security">
@@ -318,15 +326,8 @@ function PairTypeSelect({ value, onChange }: { value: Config["defaultTypeFilter"
 
 function HomepageSections() {
     const { config, updateConfig } = useConfig();
-    const availableSections = defaultConfig.homepageSections;
-    const validConfigSections = config.homepageSections.filter(s => availableSections.includes(s as (typeof availableSections)[number]));
-    const missingSections = availableSections.filter(s => !validConfigSections.includes(s));
-    const sectionIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-        SneakPick: IconHexagon,
-        Birthday: IconCake,
-        Grid: IconLayoutGrid,
-        Count: IconNumber123,
-    };
+    const validConfigSections = (config.homepageSections as Block[]).filter(s => availableBlocks.includes(s));
+    const missingSections = availableBlocks.filter(s => !validConfigSections.includes(s));
 
     function saveSections(homepageSections: Config["homepageSections"]) {
         updateConfig.mutate({ ...config, homepageSections });
@@ -350,14 +351,14 @@ function HomepageSections() {
         saveSections(validConfigSections.filter((_, currentIndex) => currentIndex !== index));
     }
 
-    function addSection(section: (typeof availableSections)[number]) {
+    function addSection(section: Block) {
         saveSections([...validConfigSections, section]);
     }
 
     return (
         <div className="size-full space-y-2">
             {validConfigSections.map((section, index) => {
-                const SectionIcon = sectionIcons[section];
+                const SectionIcon = blockIcons[section];
 
                 return (
                     <div key={section} className="pl-4 pr-3 py-3 flex items-center gap-2 bg-accent rounded-lg ring ring-border">
@@ -422,6 +423,35 @@ function VisibilitySelect({ value, onChange }: { value: Config["locationVisibili
             </SelectContent>
         </Select>
     );
+}
+
+function InputNumber({ value, onChange, ...props }: OverrideProps<React.ComponentProps<"input">, { value: number; onChange: (value: number) => unknown }>) {
+    const [displayValue, setDisplayValue] = useState(value.toString());
+
+    function processChange(event: React.ChangeEvent<HTMLInputElement>) {
+        const nextValue = event.currentTarget.value;
+        const min = event.currentTarget.min ? Number(event.currentTarget.min) : -Infinity;
+        const max = event.currentTarget.max ? Number(event.currentTarget.max) : Infinity;
+
+        if (nextValue === "") {
+            setDisplayValue("");
+            return;
+        }
+
+        if (!/^\d+$/.test(nextValue)) return;
+
+        const numericValue = Number(nextValue);
+        if (numericValue < min || numericValue > max) return;
+
+        setDisplayValue(nextValue);
+        onChange(numericValue);
+    }
+
+    useEffect(() => {
+        setDisplayValue(value.toString());
+    }, [value]);
+
+    return <Input {...props} type="text" inputMode="numeric" min={1} max={365} value={displayValue} onChange={processChange} />;
 }
 
 function UserTableRow({ user }: { user: Awaited<ReturnType<typeof bridge.users.get>>[number] }) {

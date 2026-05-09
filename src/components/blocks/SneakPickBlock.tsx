@@ -39,7 +39,7 @@ export function SneakPickBlock({ search }: SneakPickBlockProps) {
                     style={{ "--user-color": s.pickFor.color ?? "var(--color-muted-foreground)" } as React.CSSProperties}
                 >
                     <SneakerPhoto sneaker={s} />
-                    <p className="px-3 py-1 absolute left-0 right-0 bottom-0 text-center text-xs font-semibold bg-secondary rounded-t-md ring ring-border/75 shadow-sneakpick shadow-(color:--user-color)/50">{s.pickFor.username}</p>
+                    <p className="px-3 py-1 absolute left-0 right-0 bottom-0 text-center text-xs font-semibold bg-secondary rounded-t-lg ring ring-border/75 shadow-sneakpick shadow-(color:--user-color)/50">{s.pickFor.username}</p>
                 </Link>
             ))}
         </div>
@@ -101,6 +101,7 @@ function PickTimeSelect({ sneaker, self = false }: PickTimeSelectProps) {
                 _id: sneaker._id,
                 pickFor: self ? auth?._id : (pickFor ?? undefined),
                 pickUntil: until.toISOString(),
+                usageControl: new Date().toISOString(),
             },
         });
         if (result.success) await queryClient.invalidateQueries({ queryKey: ["sneakers"] });
