@@ -469,7 +469,7 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                 <TabsContent value="extra">
                     <FieldGroup>
                         <div className="flex gap-2">
-                            <Field className="flex-5 sm:flex-7">
+                            <Field className="flex-4 xs:flex-7">
                                 <Label htmlFor="sneakerStyle">Style code</Label>
                                 <Input id="sneakerStyle" name="style" placeholder="604133-050" disabled={isSaving} value={style} onChange={e => setStyle(e.target.value)} />
                             </Field>
@@ -483,7 +483,7 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                                 <Label htmlFor="sneakerStockX">StockX Url</Label>
                                 <Input id="sneakerStockX" name="stockx" inputMode="url" placeholder="https://stockx.com/nike-air-max-plus-triple-black" disabled={isSaving} value={stockxUrl} onChange={e => setStockxUrl(e.target.value)} />
                             </Field>
-                            <Field className="flex-1">
+                            <Field className="flex-2 xs:flex-1">
                                 <Label htmlFor="sneakerTag">Authenticity Tag</Label>
                                 <Input id="sneakerTag" name="tag" placeholder="58070046JUN" disabled={isSaving} value={authenticityTag} onChange={e => setAuthenticityTag(e.target.value)} />
                             </Field>

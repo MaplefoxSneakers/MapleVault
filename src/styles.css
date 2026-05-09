@@ -6,6 +6,7 @@
 @custom-variant pwa (@media (display-mode: standalone));
 
 @theme inline {
+    --breakpoint-xs: 30rem;
     --font-sans: 'Inter Variable', sans-serif;
     --text-2xs: 0.675rem;
     --color-sidebar-ring: var(--sidebar-ring);
