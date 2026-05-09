@@ -1,10 +1,11 @@
 import { createServerFn } from "@tanstack/react-start";
+import { clearSession, getSession, updateSession } from "@tanstack/react-start/server";
 import { ConvexHttpClient } from "convex/browser";
 import { z } from "zod";
 import bridge from "@/data/bridge";
+import { getAppSessionConfig, type SessionState } from "@/data/session";
 import { getContext } from "@/integrations/query";
 import { api } from "@db/api";
-import { getAppSessionConfig, type SessionState } from "@/data/session";
 
 const MIN_AUTH_RESPONSE_MS = 300;
 
@@ -17,21 +18,20 @@ export const login = createServerFn({ method: "POST" })
         try {
             client = getClient();
 
-            const guard = await client.mutation(api.auth.guardLoginAttempt, { username: data.username, ...(await generateAuthPayload(false)) });
+            const guard = await client.mutation(api.auth.guardLoginAttempt, { username: data.username, ...(await generateAuthPayload({ data: { requireAuth: false } })) });
             if (!guard.allowed) {
                 await waitForMinimumDuration(startedAt);
                 return { success: false, error: "Too many attempts. Try again later" };
             }
 
-            const user = await client.query(api.users.getByUsername, { username: data.username, ...(await generateAuthPayload(false)) });
+            const user = await client.query(api.users.getByUsername, { username: data.username, ...(await generateAuthPayload({ data: { requireAuth: false } })) });
             if (!user) return { success: false, error: "Invalid credentials" };
 
             const isMatch = await verifyScryptHash(data.password, user.passwordHash);
-            await client.mutation(api.auth.recordLoginResult, { username: data.username, success: isMatch, ...(await generateAuthPayload(false)) });
+            await client.mutation(api.auth.recordLoginResult, { username: data.username, success: isMatch, ...(await generateAuthPayload({ data: { requireAuth: false } })) });
             await waitForMinimumDuration(startedAt);
 
             if (isMatch) {
-                const { updateSession } = await import("@tanstack/react-start/server");
                 await updateSession(getAppSessionConfig(), {
                     isAuthenticated: true,
                     _id: user._id,
@@ -44,7 +44,7 @@ export const login = createServerFn({ method: "POST" })
         } catch (error) {
             if (client) {
                 try {
-                    await client.mutation(api.auth.recordLoginResult, { username: data.username, success: false, ...(await generateAuthPayload(false)) });
+                    await client.mutation(api.auth.recordLoginResult, { username: data.username, success: false, ...(await generateAuthPayload({ data: { requireAuth: false } })) });
                 } catch (recordError) {
                     console.error("Failed to record login result:", recordError);
                 }
@@ -58,17 +58,15 @@ export const login = createServerFn({ method: "POST" })
     });
 
 export const logout = createServerFn({ method: "POST" }).handler(async () => {
-    const { clearSession } = await import("@tanstack/react-start/server");
     await clearSession(getAppSessionConfig());
 });
 
 export const checkAuth = createServerFn({ method: "GET" }).handler(async () => {
-    const { getSession } = await import("@tanstack/react-start/server");
     return (await getSession(getAppSessionConfig())).data as Partial<SessionState>;
 });
 
 export const getConvexQueryAuthPayload = createServerFn({ method: "GET" }).handler(async () => {
-    return await generateAuthPayload();
+    return await generateAuthPayload({ data: {} });
 });
 
 export function getClient() {
@@ -88,25 +86,28 @@ async function waitForMinimumDuration(startedAt: number) {
     if (elapsed < MIN_AUTH_RESPONSE_MS) await wait(MIN_AUTH_RESPONSE_MS - elapsed);
 }
 
-export async function generateAuthPayload(requireAuth = true) {
-    const config = await getConfig();
-    const { getSession } = await import("@tanstack/react-start/server");
-    const session = await getSession(getAppSessionConfig());
-    if ((requireAuth && !config?.publicPage && !session.data.isAuthenticated) || !process.env.CONVEX_SERVER_SECRET) throw new Error("Unauthorized");
+export const generateAuthPayload = createServerFn({ method: "GET" })
+    .inputValidator((data: { requireAuth?: boolean }) => data)
+    .handler(async ({ data }) => {
+        const { getSession } = await import("@tanstack/react-start/server");
+        const config = await getConfig();
+        const session = await getSession(getAppSessionConfig());
+        const requireAuth = data.requireAuth ?? true;
 
-    const authRole = session.data.isAuthenticated ? (session.data.role ?? "guest") : "guest";
+        if ((requireAuth && !config?.publicPage && !session.data.isAuthenticated) || !process.env.CONVEX_SERVER_SECRET) throw new Error("Unauthorized");
 
-    const timestamp = Date.now();
-    const secret = process.env.CONVEX_SERVER_SECRET;
+        const authRole = session.data.isAuthenticated ? (session.data.role ?? "guest") : "guest";
+        const timestamp = Date.now();
+        const secret = process.env.CONVEX_SERVER_SECRET;
 
-    const data = new TextEncoder().encode(`${secret}:${timestamp}:${authRole}`);
-    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
-    const signature = Array.from(new Uint8Array(hashBuffer))
-        .map(b => b.toString(16).padStart(2, "0"))
-        .join("");
+        const encoderData = new TextEncoder().encode(`${secret}:${timestamp}:${authRole}`);
+        const hashBuffer = await crypto.subtle.digest("SHA-256", encoderData);
+        const signature = Array.from(new Uint8Array(hashBuffer))
+            .map(b => b.toString(16).padStart(2, "0"))
+            .join("");
 
-    return { signature, timestamp, authRole };
-}
+        return { signature, timestamp, authRole };
+    });
 
 function parseScryptHash(encodedHash: string) {
     const parts = encodedHash.split("$");

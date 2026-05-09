@@ -66,22 +66,24 @@ function RootDocument({ children }: { children: React.ReactNode }) {
                 <HeadContent />
             </head>
             <body>
-                <TanStackQueryProvider>{children}</TanStackQueryProvider>
-                <TanStackDevtools
-                    config={{
-                        position: "bottom-right",
-                    }}
-                    plugins={[
-                        {
-                            name: "Tanstack Router",
-                            render: <TanStackRouterDevtoolsPanel />,
-                        },
-                        {
-                            name: "Tanstack Query",
-                            render: <ReactQueryDevtoolsPanel />,
-                        },
-                    ]}
-                />
+                <TanStackQueryProvider>
+                    {children}
+                    <TanStackDevtools
+                        config={{
+                            position: "bottom-right",
+                        }}
+                        plugins={[
+                            {
+                                name: "Tanstack Router",
+                                render: <TanStackRouterDevtoolsPanel />,
+                            },
+                            {
+                                name: "Tanstack Query",
+                                render: <ReactQueryDevtoolsPanel />,
+                            },
+                        ]}
+                    />
+                </TanStackQueryProvider>
                 <Scripts />
             </body>
         </html>

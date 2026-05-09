@@ -46,9 +46,9 @@ function isErrorResult(result: unknown): result is ErrorResult {
     return typeof result === "object" && result !== null && "success" in result && (result as { success?: unknown }).success === false && typeof (result as { error?: unknown }).error === "string";
 }
 
-const getSneakers = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().query(api.sneakers.get, await generateAuthPayload()), "Failed to get sneakers"));
+const getSneakers = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().query(api.sneakers.get, await generateAuthPayload({ data: {} })), "Failed to get sneakers"));
 
-const getPickedSneakers = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().query(api.sneakers.getPickedSneakers, await generateAuthPayload()), "Failed to get picked sneakers"));
+const getPickedSneakers = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().query(api.sneakers.getPickedSneakers, await generateAuthPayload({ data: {} })), "Failed to get picked sneakers"));
 
 const addSneaker = createServerFn({ method: "POST" })
     .inputValidator(SneakerInsert)
@@ -57,7 +57,7 @@ const addSneaker = createServerFn({ method: "POST" })
             async () =>
                 getClient().mutation(api.sneakers.insert, {
                     ...data,
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to add sneaker",
         ),
@@ -70,7 +70,7 @@ const editSneaker = createServerFn({ method: "POST" })
             async () =>
                 getClient().mutation(api.sneakers.update, {
                     ...data,
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to edit sneaker",
         ),
@@ -83,15 +83,15 @@ const deleteSneaker = createServerFn({ method: "POST" })
             async () =>
                 getClient().mutation(api.sneakers.remove, {
                     ...data,
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to delete sneaker",
         ),
     );
 
-const getBrands = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().query(api.brands.get, await generateAuthPayload()), "Failed to get brands"));
+const getBrands = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().query(api.brands.get, await generateAuthPayload({ data: {} })), "Failed to get brands"));
 
-const generateUploadUrl = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().mutation(api.storage.generateUploadUrl, await generateAuthPayload()), "Failed to generate upload url"));
+const generateUploadUrl = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().mutation(api.storage.generateUploadUrl, await generateAuthPayload({ data: {} })), "Failed to generate upload url"));
 
 const addBrand = createServerFn({ method: "POST" })
     .inputValidator(BrandInsert)
@@ -100,7 +100,7 @@ const addBrand = createServerFn({ method: "POST" })
             async () =>
                 getClient().mutation(api.brands.insert, {
                     ...data,
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to add brand",
         ),
@@ -113,7 +113,7 @@ const editBrand = createServerFn({ method: "POST" })
             async () =>
                 getClient().mutation(api.brands.update, {
                     ...data,
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to edit brand",
         ),
@@ -126,13 +126,13 @@ const deleteBrand = createServerFn({ method: "POST" })
             async () =>
                 getClient().mutation(api.brands.remove, {
                     ...data,
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to delete brand",
         ),
     );
 
-const getLocations = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().query(api.locations.get, await generateAuthPayload()), "Failed to get locations"));
+const getLocations = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().query(api.locations.get, await generateAuthPayload({ data: {} })), "Failed to get locations"));
 
 const addLocation = createServerFn({ method: "POST" })
     .inputValidator(LocationInsert)
@@ -141,7 +141,7 @@ const addLocation = createServerFn({ method: "POST" })
             async () =>
                 getClient().mutation(api.locations.insert, {
                     ...data,
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to add location",
         ),
@@ -154,7 +154,7 @@ const editLocation = createServerFn({ method: "POST" })
             async () =>
                 getClient().mutation(api.locations.update, {
                     ...data,
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to edit location",
         ),
@@ -167,19 +167,19 @@ const deleteLocation = createServerFn({ method: "POST" })
             async () =>
                 getClient().mutation(api.locations.remove, {
                     ...data,
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to delete location",
         ),
     );
 
-const getUsers = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().query(api.users.get, await generateAuthPayload()), "Failed to get users"));
+const getUsers = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().query(api.users.get, await generateAuthPayload({ data: {} })), "Failed to get users"));
 
 const getUserByUsername = createServerFn({ method: "GET" })
     .inputValidator((data: { username: string }) => data)
-    .handler(async ({ data }) => handleQuery(async () => getClient().query(api.users.getByUsername, { username: data.username, ...(await generateAuthPayload()) }), "Failed to get user by username"));
+    .handler(async ({ data }) => handleQuery(async () => getClient().query(api.users.getByUsername, { username: data.username, ...(await generateAuthPayload({ data: {} })) }), "Failed to get user by username"));
 
-const getOwners = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().query(api.users.getOwners, await generateAuthPayload()), "Failed to get owners"));
+const getOwners = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().query(api.users.getOwners, await generateAuthPayload({ data: {} })), "Failed to get owners"));
 
 const addUser = createServerFn({ method: "POST" })
     .inputValidator(UserInsert.omit({ passwordHash: true }).extend({ password: z.string() }))
@@ -190,7 +190,7 @@ const addUser = createServerFn({ method: "POST" })
                 getClient().mutation(api.users.insert, {
                     ...rest,
                     passwordHash: await encryptPassword(password),
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to add user",
         );
@@ -212,7 +212,7 @@ const editUser = createServerFn({ method: "POST" })
                         username: rest.username,
                         ...(passwordHash ? { passwordHash } : {}),
                         color: rest.color,
-                        ...(await generateAuthPayload()),
+                        ...(await generateAuthPayload({ data: {} })),
                     }),
                 "Failed to edit user",
             );
@@ -222,7 +222,7 @@ const editUser = createServerFn({ method: "POST" })
                     getClient().mutation(api.users.update, {
                         ...rest,
                         ...(passwordHash ? { passwordHash } : {}),
-                        ...(await generateAuthPayload()),
+                        ...(await generateAuthPayload({ data: {} })),
                     }),
                 "Failed to edit user",
             );
@@ -236,13 +236,13 @@ const deleteUser = createServerFn({ method: "POST" })
             async () =>
                 getClient().mutation(api.users.remove, {
                     ...data,
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to delete user",
         ),
     );
 
-const getCollections = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().query(api.collections.get, await generateAuthPayload()), "Failed to get collections"));
+const getCollections = createServerFn({ method: "GET" }).handler(() => handleQuery(async () => getClient().query(api.collections.get, await generateAuthPayload({ data: {} })), "Failed to get collections"));
 
 const addCollection = createServerFn({ method: "POST" })
     .inputValidator(CollectionInsert)
@@ -251,7 +251,7 @@ const addCollection = createServerFn({ method: "POST" })
             async () =>
                 getClient().mutation(api.collections.insert, {
                     ...data,
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to add collection",
         ),
@@ -264,7 +264,7 @@ const editCollection = createServerFn({ method: "POST" })
             async () =>
                 getClient().mutation(api.collections.update, {
                     ...data,
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to edit collection",
         ),
@@ -277,7 +277,7 @@ const deleteCollection = createServerFn({ method: "POST" })
             async () =>
                 getClient().mutation(api.collections.remove, {
                     ...data,
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to delete collection",
         ),
@@ -292,7 +292,7 @@ const editConfig = createServerFn({ method: "POST" })
             async () =>
                 getClient().mutation(api.configs.update, {
                     ...data,
-                    ...(await generateAuthPayload()),
+                    ...(await generateAuthPayload({ data: {} })),
                 }),
             "Failed to edit config",
         ),
