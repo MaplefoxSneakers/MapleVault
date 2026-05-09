@@ -31,5 +31,5 @@ export function CollectionCardSkeleton() {
                 <Skeleton className="w-1/5 h-4.5" />
             </div>
         </div>
-    )
+    );
 }

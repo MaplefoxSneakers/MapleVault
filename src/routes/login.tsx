@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Field, FieldGroup, FieldLabel, FieldLegend, FieldSet } from "@/components/ui/field";
 import { Spinner } from "@/components/ui/spinner";
-import { checkAuth, getDashboardForUser, login } from "@/data/auth";
-import { cn } from "@/lib/utils";
+import { login } from "@/data/auth";
+import { cn, getErrorMessage } from "@/lib/utils";
 
 export const Route = createFileRoute("/login")({
     component: LoginComponent,
@@ -24,19 +24,20 @@ function LoginComponent() {
         setError("");
 
         try {
-            const result = await login({ data: {
-                username,
-                password,
-            }});
+            const result = await login({
+                data: {
+                    username,
+                    password,
+                },
+            });
 
             if (result.success) {
                 await router.invalidate();
-                await router.navigate({ to: getDashboardForUser(await checkAuth()) });
-            } else
-                setError(result.error || "Invalid credentials");
+                await router.navigate({ to: "/" });
+            } else setError(result.error || "Invalid credentials");
         } catch (err) {
             console.error(err);
-            setError(String(err));
+            setError(getErrorMessage(err, "Something went wrong"));
         } finally {
             setLoading(false);
         }
@@ -87,7 +88,9 @@ function LoginComponent() {
                             </Field>
                         </FieldGroup>
                     </FieldSet>
-                    <Button type="submit" disabled={!username || !password || loading}>{loading ? <Spinner /> : "Login"}</Button>
+                    <Button type="submit" disabled={!username || !password || loading}>
+                        {loading ? <Spinner /> : "Login"}
+                    </Button>
                 </FieldGroup>
             </form>
             <p className={cn("h-6 text-muted-foreground font-semibold transition-opacity duration-200", !error ? "opacity-0" : "opacity-100")}>{error}</p>

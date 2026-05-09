@@ -17,6 +17,7 @@ interface AddUserDialogProps {
     setOpen: (open: boolean) => unknown;
     user?: User;
     isCurrentUser?: boolean;
+    adminEdit?: boolean;
 }
 
 export function AddUserDialog(props: AddUserDialogProps) {
@@ -24,14 +25,12 @@ export function AddUserDialog(props: AddUserDialogProps) {
 
     return (
         <Dialog open={open} onOpenChange={rest.setOpen}>
-            <DialogContent showCloseButton={false}>
-                {open && <AddUserDialogContent {...rest} />}
-            </DialogContent>
+            <DialogContent showCloseButton={false}>{open && <AddUserDialogContent {...rest} />}</DialogContent>
         </Dialog>
     );
 }
 
-function AddUserDialogContent({ setOpen, user, isCurrentUser = false }: Omit<AddUserDialogProps, "open">) {
+function AddUserDialogContent({ setOpen, user, isCurrentUser = false, adminEdit = false }: Omit<AddUserDialogProps, "open">) {
     const [username, setUsername] = useState(user?.username ?? "");
     const [password, setPassword] = useState("");
     const [role, setRole] = useState<User["role"]>(user?.role ?? "guest");
@@ -77,9 +76,9 @@ function AddUserDialogContent({ setOpen, user, isCurrentUser = false }: Omit<Add
                     _id: user._id,
                     username,
                     password,
-                    role,
+                    ...(adminEdit ? { role } : {}),
                     color,
-                    active,
+                    ...(adminEdit ? { active } : {}),
                 },
             });
             if (!result.success) {
@@ -107,7 +106,7 @@ function AddUserDialogContent({ setOpen, user, isCurrentUser = false }: Omit<Add
     return (
         <form className="contents" onSubmit={handleSubmit}>
             <DialogHeader>
-                <DialogTitle>{!user ? "Add user" : "Edit user"}</DialogTitle>
+                <DialogTitle>{!user ? "Add user" : adminEdit ? "Edit user" : "Edit profile"}</DialogTitle>
             </DialogHeader>
             <FieldGroup>
                 <Field>
@@ -119,19 +118,19 @@ function AddUserDialogContent({ setOpen, user, isCurrentUser = false }: Omit<Add
                     <Input id="userPassword" name="password" type="password" placeholder={!user ? "Required" : "New password"} disabled={isSaving} value={password} onChange={e => setPassword(e.target.value)} />
                 </Field>
                 <div className="flex gap-2">
-                    <Field className="flex-2">
-                        <Label htmlFor="userRole">Role</Label>
-                        <Select value={role} disabled={isCurrentUser || isSaving} onValueChange={e => setRole(e ?? "guest")}>
-                            <SelectTrigger className="w-full">
-                                {role[0].toUpperCase() + role.slice(1)}
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="guest">Guest</SelectItem>
-                                <SelectItem value="normal">Normal</SelectItem>
-                                <SelectItem value="admin">Admin</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </Field>
+                    {adminEdit && (
+                        <Field className="flex-2">
+                            <Label htmlFor="userRole">Role</Label>
+                            <Select value={role} disabled={isCurrentUser || isSaving} onValueChange={e => setRole(e ?? "guest")}>
+                                <SelectTrigger className="w-full">{role[0].toUpperCase() + role.slice(1)}</SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="guest">Guest</SelectItem>
+                                    <SelectItem value="member">Member</SelectItem>
+                                    <SelectItem value="admin">Admin</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </Field>
+                    )}
                     <Field className="flex-1">
                         <div className="flex justify-between items-center">
                             <Label htmlFor="userColor">Color</Label>
@@ -140,15 +139,17 @@ function AddUserDialogContent({ setOpen, user, isCurrentUser = false }: Omit<Add
                         <Input id="userColor" name="color" placeholder="#ff566b" disabled={isSaving} value={color} onChange={e => setColor(e.target.value)} />
                     </Field>
                 </div>
-                <Field orientation="horizontal" className="w-fit">
-                    <Checkbox id="userActive" checked={active} disabled={isCurrentUser || isSaving} onCheckedChange={e => setActive(!!e)} />
-                    <FieldLabel htmlFor="userActive">Active</FieldLabel>
-                </Field>
+                {adminEdit && (
+                    <Field orientation="horizontal" className="w-fit">
+                        <Checkbox id="userActive" checked={active} disabled={isCurrentUser || isSaving} onCheckedChange={e => setActive(!!e)} />
+                        <FieldLabel htmlFor="userActive">Active</FieldLabel>
+                    </Field>
+                )}
                 {error && <p className="text-sm text-destructive">{error}</p>}
             </FieldGroup>
             <DialogFooter>
                 <DialogClose disabled={isSaving} render={<Button variant="outline">Cancel</Button>} />
-                <Button type="submit" className="sm:w-31" disabled={isSaving || !username || !role || !color || !isColorValid || !user && !password}>
+                <Button type="submit" className="sm:w-31" disabled={isSaving || !username || !color || !isColorValid || (!user && !password)}>
                     {!isSaving ? "Save changes" : <Spinner />}
                 </Button>
             </DialogFooter>

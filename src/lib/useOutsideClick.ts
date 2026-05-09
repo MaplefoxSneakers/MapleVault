@@ -4,8 +4,7 @@ export function useOutsideClick(ref: React.RefObject<HTMLElement | null>, callba
     useEffect(() => {
         function handleClick(event: MouseEvent) {
             const portal = document.querySelector("div[data-base-ui-portal]");
-            if (!ref.current?.contains(event.target as Node) && !portal?.contains(event.target as Node))
-                callback();
+            if (!ref.current?.contains(event.target as Node) && !portal?.contains(event.target as Node)) callback();
         }
 
         document.addEventListener("mousedown", handleClick);

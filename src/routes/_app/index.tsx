@@ -1,25 +1,24 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { IconFilter2, IconLogout, IconPlus, IconSearch, IconX } from "@tabler/icons-react";
+import { IconFilter2, IconPlus, IconSearch, IconX } from "@tabler/icons-react";
+import { BlockManager } from "@/components/blocks/BlockManager";
 import { Button } from "@/components/ui/button";
 import { InputGroup, InputGroupAddon, InputGroupInput } from "@/components/ui/input-group";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { BirthdayBlock } from "@/components/blocks/BirthdayBlock";
-import { CountBlock } from "@/components/blocks/CountBlock";
-import { GridBlock } from "@/components/blocks/GridBlock";
-import { SneakPickBlock } from "@/components/blocks/SneakPickBlock";
 import { AddSneakerDialog } from "@/components/overlays/AddSneakerDialog";
 import { Header } from "@/components/Header";
+import { UserMenu } from "@/components/UserMenu";
 import { checkAuth } from "@/data/auth";
 import bridge from "@/data/bridge";
-import { sneakerTypes, type Search } from "@/lib/models";
 import { useLogout } from "@/lib/useLogout";
+import { useConfig } from "@/lib/useConfig";
 import { useOutsideClick } from "@/lib/useOutsideClick";
-import { cn } from "@/lib/utils";
+import { allToUndefined, cn, decommissionTransformer } from "@/lib/utils";
+import type { Search } from "@/lib/models";
 import type { Id } from "@db/dataModel";
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_app/")({
     component: Index,
     beforeLoad: () => checkAuth(),
 });
@@ -30,6 +29,7 @@ function Index() {
     const [searchOpen, setSearchOpen] = useState(false);
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [scrolling, setScrolling] = useState(false);
+    const { config } = useConfig();
     const logout = useLogout();
     const { data: brands } = useQuery({
         queryKey: ["brands"],
@@ -45,6 +45,7 @@ function Index() {
     });
     const containerRef = useRef<HTMLDivElement>(null);
     const { auth } = Route.useRouteContext();
+    const sneakerTypes = ["Sneakers", "Shoes", "Boots", "Flip-flops"] as const;
 
     function addSneaker() {
         setAddDialogOpen(true);
@@ -52,7 +53,7 @@ function Index() {
 
     function onMobileChange(term: string) {
         setFiltersOpen(false);
-        setSearch({ ...search, term })
+        setSearch({ ...search, term });
     }
 
     function closeSearch() {
@@ -60,47 +61,49 @@ function Index() {
         setFiltersOpen(false);
     }
 
+    useEffect(() => {
+        setSearch({ ...search, type: allToUndefined(config.defaultTypeFilter), decommissioned: decommissionTransformer(config.defaultShowDecommissioned) });
+    }, [config.defaultTypeFilter, config.defaultShowDecommissioned]);
+
     useOutsideClick(containerRef, () => setFiltersOpen(false));
 
     return (
         <div className="min-h-screen">
             <Header
-                left={auth?.role !== "guest" && (
-                    <Button className="md:hidden" variant="outline" size="icon" onClick={addSneaker}>
-                        <IconPlus className="size-5" />
-                    </Button>
-                )}
+                left={
+                    auth.role !== "guest" && (
+                        <Button className="md:hidden" variant="outline" size="icon" onClick={addSneaker}>
+                            <IconPlus className="size-5" />
+                        </Button>
+                    )
+                }
                 right={
                     <>
                         <AddSneakerDialog open={addDialogOpen} setOpen={setAddDialogOpen} />
                         <Button className="md:hidden" variant="outline" size="icon" onClick={() => setSearchOpen(true)}>
                             <IconSearch className="size-5" />
                         </Button>
-                        {auth?.role !== "guest" && (
+                        {auth.role !== "guest" && (
                             <Button className="max-md:hidden" variant="outline" size="icon" onClick={addSneaker}>
                                 <IconPlus className="size-5" />
                             </Button>
                         )}
-                        <div ref={containerRef} className={cn("max-md:fixed max-md:left-0 max-md:right-0 max-md:p-6 max-md:ring max-md:transition-all max-md:duration-300", !searchOpen ? "max-md:-top-22 max-md:ring-transparent" : "max-md:top-0 max-md:ring-border ", !scrolling ? "max-md:bg-background" : "max-md:bg-accent")}>
+                        <div
+                            ref={containerRef}
+                            className={cn(
+                                "max-md:fixed max-md:left-0 max-md:right-0 max-md:p-6 max-md:ring max-md:transition-all max-md:duration-300",
+                                !searchOpen ? "max-md:-top-22 max-md:ring-transparent" : "max-md:top-0 max-md:ring-border ",
+                                !scrolling ? "max-md:bg-background" : "max-md:bg-accent",
+                            )}
+                        >
                             <Popover open={filtersOpen}>
                                 <PopoverTrigger nativeButton={false} render={<div className="md:w-88 max-md:py-1 flex gap-2" />} tabIndex={-1}>
                                     <InputGroup className="w-full bg-secondary">
                                         <InputGroupAddon>
                                             <IconSearch className="size-4 text-muted-foreground" />
                                         </InputGroupAddon>
-                                        <InputGroupInput
-                                            className="max-md:hidden"
-                                            value={search.term}
-                                            placeholder="Search sneakers..."
-                                            onFocus={() => setFiltersOpen(true)}
-                                            onChange={e => setSearch({ ...search, term: e.target.value })}
-                                        />
-                                        <InputGroupInput
-                                            className="md:hidden"
-                                            value={search.term}
-                                            placeholder="Search sneakers..."
-                                            onChange={e => onMobileChange(e.target.value)}
-                                        />
+                                        <InputGroupInput className="max-md:hidden" value={search.term} placeholder="Search sneakers..." onFocus={() => setFiltersOpen(true)} onChange={e => setSearch({ ...search, term: e.target.value })} />
+                                        <InputGroupInput className="md:hidden" value={search.term} placeholder="Search sneakers..." onChange={e => onMobileChange(e.target.value)} />
                                     </InputGroup>
                                     <Button className="md:hidden" variant="outline" size="icon" onClick={() => setFiltersOpen(!filtersOpen)}>
                                         <IconFilter2 className="size-5" />
@@ -116,47 +119,29 @@ function Index() {
                                         options={[...(locations ?? []).map(l => ({ id: l._id, label: l.name })), { id: "outside", label: "Outside" }] as { id: Id<"locations"> | "outside" | undefined; label: string }[]}
                                         setFilter={l => setSearch({ ...search, location: l })}
                                     />
-                                    <FilterGroup
-                                        name="Brand"
-                                        current={search.brand}
-                                        options={(brands ?? []).map(b => ({ id: b._id, label: b.name }))}
-                                        setFilter={b => setSearch({ ...search, brand: b })}
-                                    />
-                                    <FilterGroup
-                                        name="Owner"
-                                        current={search.owner}
-                                        options={(owners ?? []).map(o => ({ id: o._id, label: o.username }))}
-                                        setFilter={o => setSearch({ ...search, owner: o })}
-                                    />
-                                    <FilterGroup
-                                        name="Type"
-                                        current={search.type}
-                                        options={sneakerTypes.map(o => ({ id: o, label: o }))}
-                                        setFilter={t => setSearch({ ...search, type: t })}
-                                    />
+                                    <FilterGroup name="Brand" current={search.brand} options={(brands ?? []).map(b => ({ id: b._id, label: b.name }))} setFilter={b => setSearch({ ...search, brand: b })} />
+                                    <FilterGroup name="Owner" current={search.owner} options={(owners ?? []).map(o => ({ id: o._id, label: o.username }))} setFilter={o => setSearch({ ...search, owner: o })} />
+                                    <FilterGroup name="Type" current={search.type} options={sneakerTypes.map(o => ({ id: o, label: o }))} setFilter={t => setSearch({ ...search, type: t })} />
                                     <FilterGroup
                                         name="Decommissioned"
                                         current={search.decommissioned}
-                                        options={[{ id: true, label: "List" }, { id: false, label: "All" }]}
+                                        options={[
+                                            { id: true, label: "List" },
+                                            { id: false, label: "All" },
+                                        ]}
                                         unsetText="Hidden"
                                         setFilter={d => setSearch({ ...search, decommissioned: d })}
                                     />
                                 </PopoverContent>
                             </Popover>
                         </div>
-                        <Button variant="outline" size="icon" onClick={logout}>
-                            <IconLogout className="size-4.5" />
-                        </Button>
+                        <UserMenu logout={logout} />
                     </>
                 }
                 outScrolling={setScrolling}
             />
             <div className="max-w-7xl mx-auto pt-4 pb-20 flex flex-col gap-8">
-                {/* Customize here the blocks you want to show and their order */}
-                <SneakPickBlock search={search} />
-                <BirthdayBlock search={search} />
-                <GridBlock search={search} onAdd={addSneaker} auth={auth} />
-                <CountBlock search={search} />
+                <BlockManager search={search} onAdd={addSneaker} />
             </div>
         </div>
     );
@@ -175,22 +160,11 @@ function FilterGroup<T>({ name, current, options, unsetText, setFilter }: Filter
         <div className="space-y-1.5">
             <h4 className="font-semibold text-xs text-muted-foreground">{name}</h4>
             <div className="flex flex-wrap gap-1.5">
-                <Button
-                    className="h-7 text-xs rounded-full"
-                    size="sm"
-                    variant={current === undefined ? "default" : "outline"}
-                    onClick={() => setFilter(undefined)}
-                >
+                <Button className="h-7 text-xs rounded-full" size="sm" variant={current === undefined ? "default" : "outline"} onClick={() => setFilter(undefined)}>
                     {unsetText ?? "All"}
                 </Button>
                 {options.map((l, i) => (
-                    <Button
-                        key={i}
-                        className="h-7 text-xs rounded-full"
-                        size="sm"
-                        variant={current === l.id ? "default" : "outline"}
-                        onClick={() => setFilter(l.id)}
-                    >
+                    <Button key={i} className="h-7 text-xs rounded-full" size="sm" variant={current === l.id ? "default" : "outline"} onClick={() => setFilter(l.id)}>
                         {l.label}
                     </Button>
                 ))}

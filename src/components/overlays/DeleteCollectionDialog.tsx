@@ -26,8 +26,7 @@ export function DeleteCollectionDialog({ open, setOpen, _id }: DeleteCollectionD
         if (result.success) {
             queryClient.invalidateQueries({ queryKey: ["collections"] });
             navigate({ to: "/collections" });
-        } else
-            setOpen(false);
+        } else setOpen(false);
 
         setIsSaving(false);
     }

@@ -21,8 +21,7 @@ export function DeleteUserDialog({ open, setOpen, _id }: DeleteUserDialogProps) 
         setIsSaving(true);
 
         const result = await bridge.users.remove({ data: { _id } });
-        if (result.success)
-            await queryClient.invalidateQueries({ queryKey: ["users"] });
+        if (result.success) await queryClient.invalidateQueries({ queryKey: ["users"] });
 
         setOpen(false);
         setIsSaving(false);

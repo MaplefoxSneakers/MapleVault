@@ -1,4 +1,4 @@
-import bridge from "@/data/bridge";
+import type bridge from "@/data/bridge";
 import type { Doc } from "@db/dataModel";
 
 export type Sneaker = Awaited<ReturnType<typeof bridge.sneakers.get>>[number];
@@ -15,5 +15,3 @@ export interface Search {
     type?: Doc<"sneakers">["type"];
     decommissioned?: Doc<"sneakers">["decommissioned"];
 }
-
-export const sneakerTypes = ["Sneakers", "Shoes", "Boots", "Flip-flops"] as const;

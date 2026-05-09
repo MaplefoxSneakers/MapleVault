@@ -6,7 +6,7 @@
     <p align="center">
         <a href="#about">About</a>
         ·
-        <a href="https://ghostty.org/download">Releases</a>
+        <a href="https://github.com/D3W10/SneakrVault/releases">Releases</a>
         ·
         <a href="CONTRIBUTING.md">Contributing</a>
     </p>
@@ -47,32 +47,59 @@ SneakrVault is a self-hosted application so, in order to start using it, you nee
 3. Go to [Convex](https://www.convex.dev/) and create an account;
 4. Create a new project in Convex (you can choose any name you want);
 5. On the top, switch from "Development (Cloud)" to "Production", making it switch from green to purple;
-6. Click on the button below to deploy SneakrVault to Vercel, you may choose the project and repository names;
+6. Click on the button below to deploy SneakrVault to Vercel;
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FD3W10%2FSneakrVault&env=SESSION_SECRET,CONVEX_URL,CONVEX_DEPLOY_KEY)
+[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2FD3W10%2FSneakrVault)
 
-7. For the "Environment Variables" section, you need to provide the following values:
-    - Go to a website like [RandomKeygen](https://randomkeygen.com/encryption-key) and generate a 128 bit hexadecimal key, copy the resulting AES-128 key and paste it in the `SESSION_SECRET` field;
-    - On Convex, head to the "Settings" tab and copy the Cloud URL and paste it in the `CONVEX_URL` field;
-    - Also on Convex Settings, click on "Generate Production Deploy Key", give it a name, copy it and paste it in the `CONVEX_DEPLOY_KEY` field;
-8. Wait until the deployment is finished;
-9. Once finished, find the project settings on Vercel and go to "Build and Deployment", find the "Build Command" field, turn on override and paste:
+7. Make sure your GitHub account is selected on "Git Scope" and choose a repository name (make sure it is set to private);
+8. Click on "Create" and let the process finish, if it fails do not worry and proceed to the next step;
+9. Once the deployment is finished, head over to Vercel's main page, select the project you created and head to "Environment Variables", there you want to add the following variables:
+    - **Key:** `SESSION_SECRET` <br />
+      **Value:** Go to a website like [RandomKeygen](https://randomkeygen.com/encryption-key) and generate a 128 bit hexadecimal key, copy the AES-128 key and paste it as value <br />
+      **Environments:** Production and Preview <br />
+      **Sensitive:** Yes
+    - **Key:** `CONVEX_URL` <br />
+      **Value:** Back in Convex, head to the "Settings" tab, copy the Cloud URL and paste it as value <br />
+      **Environments:** Production and Preview <br />
+      **Sensitive:** No
+    - **Key:** `CONVEX_DEPLOY_KEY` <br />
+      **Value:** Also on Convex Settings, click on "Generate Production Deploy Key", give it a name, copy it and paste it as value <br />
+      **Environments:** Production and Preview <br />
+      **Sensitive:** Yes
+    - **Key:** `CONVEX_SERVER_SECRET` <br />
+      **Value:** Go back again to [RandomKeygen](https://randomkeygen.com/encryption-key) and generate another 128 bit hexadecimal key, copy the AES-128 key and paste it as value <br />
+      **Environments:** Production and Preview <br />
+      **Sensitive:** Yes
+
+10. Before proceeding, head over to the Convex Settings again and go to the "Environment Variables" tab, add a new variable called `CONVEX_SERVER_SECRET` and paste in the same key as the one in Vercel;
+11. Back in Vercel, make sure you have all the keys set and, on the sidebar, head over to Settings then Build and Deployment, there you want to find the "Build Command" field, turn on override and paste:
 ```bash
 bunx convex deploy --cmd 'bun run build'
 ```
-10. Go back to the project overview page and select "Deployments", click on the three dots on the top right and then "Create Deployment", click on "main" and select "Create Deployment";
-11. Wait for the deployment to finish;
-12. Open [init.json](https://github.com/D3W10/SneakrVault/blob/main/convex/init.json), copy the contents and head over to the "Data" tab on Convex;
-13. Select the "users" table, click on "Add" and replace the contents with the copied data, press "Save";
-14. You're done! Head to the project overview on Vercel and tap on "Visit" to see the app. This is the URL you'll use to access SneakrVault;
-15. First thing you should do is access the admin panel, change its password and create your first user. The default admin credentials are "admin" for both user and password;
-16. Click the pencil to change the password of the admin user and log back in (**this is important, otherwise any attacker can easily guess the password and manipulate data without you knowing**);
-17. Create a user for you, along with the brands of the pairs you want to use and locations, log out when you're done;
-18. Log in with your own credentials and start adding your sneakers!
+> [!IMPORTANT]
+> Make sure the command is pasted exactly as it is, some devices may replace `'` with `‘` or `’` and the deployment will later fail!
 
-**Optional**
+12. Save your changes, leave settings back to the project overview and head over to the "Deployments" tab. Click on the three dots on the top right and select "Create Deployment", click on "main" and select "Deploy to Production";
+13. Wait for the deployment to finish;
+14. Open [init.json](https://github.com/D3W10/SneakrVault/blob/main/convex/init.json), copy the contents of the file by clicking on the "Copy" button next to "Raw" and head over to the "Data" tab on the Convex dashboard;
+15. If the deployment was successful and you followed the steps correctly, you should see a list of tables on the side, click on the "users" table;
+16. Press "Add" on the top right and replace the contents with the copied data, press "Save";
+17. You're done! Head to the project overview on Vercel and tap on "Visit" to see your newly deployed app. This is the URL you'll use to access SneakrVault;
+18. First thing you should do is change the credentials of the default account. Type "admin" for both username and password and log in;
+19. Go to "Settings" on the top right, go to the "Users" tab and click on the pencil icon next to the only user in the list;
+20. You may change the username, password and other settings according to your preferences, this will be your account to interact with the app (make sure you change your color for a better experience, just put a [hex color code](https://htmlcolorcodes.com/) in the field or a name of a color you like);
 
-19. Go to the "Domains" tab on Vercel, here you can edit the domain name to where SneakrVault will be hosted.
+> [!CAUTION]
+> It is **very important** that you change the password to anything other than the default and memorable just for you, otherwise **any attacker can easily guess the password and manipulate data without you knowing**!
+
+21. Once you're done with the users, head to "Brands" and add all the brands you will need (you can come back here anytime you need to add more), just select one of the existing presets or create one of your own;
+22. Head to "Locations" and add all the locations you store your sneakers (*optional* but useful to keep track where they're stored);
+23. Once done you're now free to explore the app, start adding pairs and modify the configuration to tailor it to your needs.
+
+**Other useful notes**
+
+24. You're most likely to open the app on your mobile device, for that you can add a link to the app on your home screen. On iOS/iPadOS you do that by opening the website URL in Safari, go to "Share", select "Add to Home Screen" and then "Add". This will also make the app open in fullscreen mode;
+25. In case you don't like the URL you got or plan to buy a *fancy* domain, on Vercel go to the "Domains" tab under the project overview, and edit the domain name to where your SneakrVault will be hosted.
 
 ## Development
 

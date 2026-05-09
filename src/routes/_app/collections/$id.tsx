@@ -14,7 +14,7 @@ import { checkAuth } from "@/data/auth";
 import bridge from "@/data/bridge";
 import { creationSort } from "@/lib/utils";
 
-export const Route = createFileRoute("/collections/$id")({
+export const Route = createFileRoute("/_app/collections/$id")({
     component: CollectionDetails,
     beforeLoad: () => checkAuth(),
 });
@@ -33,17 +33,15 @@ function CollectionDetails() {
     const { isPending: sneakersPending, data: sneakers } = useQuery({
         queryKey: ["sneakers"],
         queryFn: bridge.sneakers.get,
-        select: items => items.filter(s => collection && collection.sneakers.includes(s._id))
+        select: items => items.filter(s => collection?.sneakers.includes(s._id)),
     });
     const router = useRouter();
     const { auth } = Route.useRouteContext();
     const isPending = collectionsPending || sneakersPending;
 
     function handleBack() {
-        if (canGoBack)
-            router.history.back();
-        else
-            navigate({ to: "/collections" });
+        if (canGoBack) router.history.back();
+        else navigate({ to: "/collections" });
     }
 
     if (!isPending && !collection) {
@@ -71,13 +69,15 @@ function CollectionDetails() {
                             <IconChevronLeft className="size-5" data-icon="inline-start" />
                             Back to collections
                         </Button>
-                        {auth?.role !== "guest" && (
+                        {auth.role !== "guest" && (
                             <DropdownMenu>
-                                <DropdownMenuTrigger render={
-                                    <Button variant="outline" size="icon">
-                                        <IconDots className="size-5" />
-                                    </Button>
-                                } />
+                                <DropdownMenuTrigger
+                                    render={
+                                        <Button variant="outline" size="icon">
+                                            <IconDots className="size-5" />
+                                        </Button>
+                                    }
+                                />
                                 <DropdownMenuContent className="w-42" align="end" sideOffset={8}>
                                     <DropdownMenuItem onClick={() => setEditOpen(true)}>
                                         <IconPencil className="size-4" />
@@ -100,7 +100,9 @@ function CollectionDetails() {
                             <CollectionPhoto collection={collection} className="size-24 sm:size-28 md:size-32 rounded-xl ring ring-border shadow-2xl shadow-primary/25 animate-in fade-in zoom-in duration-500" />
                             <div className="flex flex-col justify-center gap-1 flex-1 animate-in fade-in duration-1000">
                                 <h1 className="text-xl sm:text-3xl md:text-2xl lg:text-4xl text-transparent font-black bg-linear-to-b from-zinc-50 to-zinc-600 bg-clip-text tracking-tight">{collection.name}</h1>
-                                <h2 className="sm:text-xl md:text-lg lg:text-2xl text-secondary-foreground font-bold">{collection.sneakers.length} {collection.sneakers.length === 1 ? "pair" : "pairs"}</h2>
+                                <h2 className="sm:text-xl md:text-lg lg:text-2xl text-secondary-foreground font-bold">
+                                    {collection.sneakers.length} {collection.sneakers.length === 1 ? "pair" : "pairs"}
+                                </h2>
                             </div>
                         </>
                     ) : (
@@ -115,20 +117,15 @@ function CollectionDetails() {
                 </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                     {isPending ? (
-                        Array(15).fill(null).map((_, i) => <SneakerCardSkeleton key={i} />)
+                        Array(15)
+                            .fill(null)
+                            .map((_, i) => <SneakerCardSkeleton key={i} />)
                     ) : (sneakers ?? []).length !== 0 ? (
-                        (sneakers ?? [])
-                            .sort(creationSort)
-                            .map(s => (
-                                <SneakerCard
-                                    key={s._id}
-                                    sneaker={s}
-                                />
-                            ))
+                        (sneakers ?? []).sort(creationSort).map(s => <SneakerCard key={s._id} sneaker={s} />)
                     ) : (
                         <div className="py-20 flex flex-col items-center gap-4 col-span-full font-medium text-center text-muted-foreground">
                             <p>Your collection is empty. Start by adding some pairs!</p>
-                            {auth?.role !== "guest" && <Button onClick={() => navigate({ to: "/" })}>Browse sneakers</Button>}
+                            {auth.role !== "guest" && <Button onClick={() => navigate({ to: "/" })}>Browse sneakers</Button>}
                         </div>
                     )}
                 </div>

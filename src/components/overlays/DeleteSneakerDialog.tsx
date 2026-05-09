@@ -26,8 +26,7 @@ export function DeleteSneakerDialog({ open, setOpen, _id }: DeleteSneakerDialogP
         if (result.success) {
             queryClient.invalidateQueries({ queryKey: ["sneakers"] });
             navigate({ to: "/" });
-        } else
-            setOpen(false);
+        } else setOpen(false);
 
         setIsSaving(false);
     }

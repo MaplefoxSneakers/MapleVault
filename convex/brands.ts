@@ -14,7 +14,7 @@ export const get = guestQuery({
     handler: async ctx => {
         const brands = await ctx.db.query("brands").collect();
 
-        return Promise.all(brands.map(async b => ({ ...b, iconUrl: b.icon && await ctx.storage.getUrl(b.icon) })));
+        return Promise.all(brands.map(async b => ({ ...b, iconUrl: b.icon && (await ctx.storage.getUrl(b.icon)) })));
     },
 });
 
@@ -30,14 +30,16 @@ export const update = adminMutation({
     args: BrandUpdate,
     handler: async (ctx, args) => {
         const { _id, icon, ...rest } = args;
-        const brand = await ctx.db.query("brands").filter(q => q.eq(q.field("_id"), _id)).first();
+        const brand = await ctx.db
+            .query("brands")
+            .filter(q => q.eq(q.field("_id"), _id))
+            .first();
 
-        let patch = { ...rest } as z.infer<typeof BrandInsert>;
+        const patch = { ...rest } as z.infer<typeof BrandInsert>;
 
         if (icon !== undefined) {
             patch.icon = icon === null ? undefined : icon;
-            if (brand?.icon)
-                await ctx.storage.delete(brand.icon);
+            if (brand?.icon) await ctx.storage.delete(brand.icon);
         }
 
         await ctx.db.patch(args._id, patch);
@@ -48,9 +50,11 @@ export const update = adminMutation({
 export const remove = adminMutation({
     args: BrandRemove,
     handler: async (ctx, args) => {
-        const brand = await ctx.db.query("brands").filter(q => q.eq(q.field("_id"), args._id)).first();
-        if (brand?.icon)
-            await ctx.storage.delete(brand.icon);
+        const brand = await ctx.db
+            .query("brands")
+            .filter(q => q.eq(q.field("_id"), args._id))
+            .first();
+        if (brand?.icon) await ctx.storage.delete(brand.icon);
 
         await ctx.db.delete(args._id);
         return { success: true };

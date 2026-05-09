@@ -20,9 +20,7 @@ export function AddLocationDialog(props: AddLocationDialogProps) {
 
     return (
         <Dialog open={open} onOpenChange={rest.setOpen}>
-            <DialogContent showCloseButton={false}>
-                {open && <AddLocationDialogContent {...rest} />}
-            </DialogContent>
+            <DialogContent showCloseButton={false}>{open && <AddLocationDialogContent {...rest} />}</DialogContent>
         </Dialog>
     );
 }

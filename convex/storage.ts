@@ -1,6 +1,6 @@
-import { normalMutation } from "./customFunctions";
+import { memberMutation } from "./customFunctions";
 
-export const generateUploadUrl = normalMutation({
+export const generateUploadUrl = memberMutation({
     args: {},
     handler: async ctx => {
         return await ctx.storage.generateUploadUrl();

@@ -23,4 +23,4 @@ export const getRouter = () => {
     });
 
     return router;
-}
+};

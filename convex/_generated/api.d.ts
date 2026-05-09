@@ -11,6 +11,7 @@
 import type * as auth from "../auth.js";
 import type * as brands from "../brands.js";
 import type * as collections from "../collections.js";
+import type * as configs from "../configs.js";
 import type * as customFunctions from "../customFunctions.js";
 import type * as locations from "../locations.js";
 import type * as sneakers from "../sneakers.js";
@@ -27,6 +28,7 @@ declare const fullApi: ApiFromModules<{
   auth: typeof auth;
   brands: typeof brands;
   collections: typeof collections;
+  configs: typeof configs;
   customFunctions: typeof customFunctions;
   locations: typeof locations;
   sneakers: typeof sneakers;

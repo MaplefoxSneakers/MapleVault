@@ -1,0 +1,32 @@
+{
+    "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+    "files": {
+        "includes": ["src/**/*.{ts,tsx,json}", "convex/**/*.{ts,json}", "!!src/components/ui/*", "!!src/routeTree.gen.ts", "!!convex/_generated/*"]
+    },
+    "formatter": {
+        "indentStyle": "space",
+        "indentWidth": 4,
+        "lineWidth": 300
+    },
+    "linter": {
+        "domains": {
+            "react": "recommended"
+        },
+        "rules": {
+            "suspicious": {
+                "noArrayIndexKey": "off"
+            },
+            "correctness": {
+                "useExhaustiveDependencies": "off"
+            }
+        }
+    },
+    "javascript": {
+        "assist": {
+            "enabled": false
+        },
+        "formatter": {
+            "arrowParentheses": "asNeeded"
+        }
+    }
+}

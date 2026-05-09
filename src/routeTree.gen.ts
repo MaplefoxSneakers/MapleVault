@@ -9,114 +9,112 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as ManageRouteImport } from './routes/manage'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as CollectionsIndexRouteImport } from './routes/collections/index'
+import { Route as AppRouteRouteImport } from './routes/_app/route'
+import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as SneakersIdRouteImport } from './routes/sneakers/$id'
-import { Route as CollectionsIdRouteImport } from './routes/collections/$id'
+import { Route as AppCollectionsIndexRouteImport } from './routes/_app/collections/index'
+import { Route as AppManageChar123TabChar125RouteImport } from './routes/_app/manage.{-$tab}'
+import { Route as AppCollectionsIdRouteImport } from './routes/_app/collections/$id'
 
-const ManageRoute = ManageRouteImport.update({
-  id: '/manage',
-  path: '/manage',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const AppRouteRoute = AppRouteRouteImport.update({
+  id: '/_app',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CollectionsIndexRoute = CollectionsIndexRouteImport.update({
-  id: '/collections/',
-  path: '/collections/',
-  getParentRoute: () => rootRouteImport,
+const AppIndexRoute = AppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppRouteRoute,
 } as any)
 const SneakersIdRoute = SneakersIdRouteImport.update({
   id: '/sneakers/$id',
   path: '/sneakers/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CollectionsIdRoute = CollectionsIdRouteImport.update({
+const AppCollectionsIndexRoute = AppCollectionsIndexRouteImport.update({
+  id: '/collections/',
+  path: '/collections/',
+  getParentRoute: () => AppRouteRoute,
+} as any)
+const AppManageChar123TabChar125Route =
+  AppManageChar123TabChar125RouteImport.update({
+    id: '/manage/{-$tab}',
+    path: '/manage/{-$tab}',
+    getParentRoute: () => AppRouteRoute,
+  } as any)
+const AppCollectionsIdRoute = AppCollectionsIdRouteImport.update({
   id: '/collections/$id',
   path: '/collections/$id',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AppRouteRoute,
 } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AppIndexRoute
   '/login': typeof LoginRoute
-  '/manage': typeof ManageRoute
-  '/collections/$id': typeof CollectionsIdRoute
   '/sneakers/$id': typeof SneakersIdRoute
-  '/collections/': typeof CollectionsIndexRoute
+  '/collections/$id': typeof AppCollectionsIdRoute
+  '/manage/{-$tab}': typeof AppManageChar123TabChar125Route
+  '/collections/': typeof AppCollectionsIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/manage': typeof ManageRoute
-  '/collections/$id': typeof CollectionsIdRoute
   '/sneakers/$id': typeof SneakersIdRoute
-  '/collections': typeof CollectionsIndexRoute
+  '/': typeof AppIndexRoute
+  '/collections/$id': typeof AppCollectionsIdRoute
+  '/manage/{-$tab}': typeof AppManageChar123TabChar125Route
+  '/collections': typeof AppCollectionsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_app': typeof AppRouteRouteWithChildren
   '/login': typeof LoginRoute
-  '/manage': typeof ManageRoute
-  '/collections/$id': typeof CollectionsIdRoute
   '/sneakers/$id': typeof SneakersIdRoute
-  '/collections/': typeof CollectionsIndexRoute
+  '/_app/': typeof AppIndexRoute
+  '/_app/collections/$id': typeof AppCollectionsIdRoute
+  '/_app/manage/{-$tab}': typeof AppManageChar123TabChar125Route
+  '/_app/collections/': typeof AppCollectionsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/login'
-    | '/manage'
-    | '/collections/$id'
     | '/sneakers/$id'
+    | '/collections/$id'
+    | '/manage/{-$tab}'
     | '/collections/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/login'
-    | '/manage'
-    | '/collections/$id'
     | '/sneakers/$id'
+    | '/'
+    | '/collections/$id'
+    | '/manage/{-$tab}'
     | '/collections'
   id:
     | '__root__'
-    | '/'
+    | '/_app'
     | '/login'
-    | '/manage'
-    | '/collections/$id'
     | '/sneakers/$id'
-    | '/collections/'
+    | '/_app/'
+    | '/_app/collections/$id'
+    | '/_app/manage/{-$tab}'
+    | '/_app/collections/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AppRouteRoute: typeof AppRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
-  ManageRoute: typeof ManageRoute
-  CollectionsIdRoute: typeof CollectionsIdRoute
   SneakersIdRoute: typeof SneakersIdRoute
-  CollectionsIndexRoute: typeof CollectionsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/manage': {
-      id: '/manage'
-      path: '/manage'
-      fullPath: '/manage'
-      preLoaderRoute: typeof ManageRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -124,19 +122,19 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
+    '/_app': {
+      id: '/_app'
+      path: ''
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+      preLoaderRoute: typeof AppRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/collections/': {
-      id: '/collections/'
-      path: '/collections'
-      fullPath: '/collections/'
-      preLoaderRoute: typeof CollectionsIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_app/': {
+      id: '/_app/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof AppIndexRouteImport
+      parentRoute: typeof AppRouteRoute
     }
     '/sneakers/$id': {
       id: '/sneakers/$id'
@@ -145,23 +143,52 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SneakersIdRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/collections/$id': {
-      id: '/collections/$id'
+    '/_app/collections/': {
+      id: '/_app/collections/'
+      path: '/collections'
+      fullPath: '/collections/'
+      preLoaderRoute: typeof AppCollectionsIndexRouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/manage/{-$tab}': {
+      id: '/_app/manage/{-$tab}'
+      path: '/manage/{-$tab}'
+      fullPath: '/manage/{-$tab}'
+      preLoaderRoute: typeof AppManageChar123TabChar125RouteImport
+      parentRoute: typeof AppRouteRoute
+    }
+    '/_app/collections/$id': {
+      id: '/_app/collections/$id'
       path: '/collections/$id'
       fullPath: '/collections/$id'
-      preLoaderRoute: typeof CollectionsIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AppCollectionsIdRouteImport
+      parentRoute: typeof AppRouteRoute
     }
   }
 }
 
+interface AppRouteRouteChildren {
+  AppIndexRoute: typeof AppIndexRoute
+  AppCollectionsIdRoute: typeof AppCollectionsIdRoute
+  AppManageChar123TabChar125Route: typeof AppManageChar123TabChar125Route
+  AppCollectionsIndexRoute: typeof AppCollectionsIndexRoute
+}
+
+const AppRouteRouteChildren: AppRouteRouteChildren = {
+  AppIndexRoute: AppIndexRoute,
+  AppCollectionsIdRoute: AppCollectionsIdRoute,
+  AppManageChar123TabChar125Route: AppManageChar123TabChar125Route,
+  AppCollectionsIndexRoute: AppCollectionsIndexRoute,
+}
+
+const AppRouteRouteWithChildren = AppRouteRoute._addFileChildren(
+  AppRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AppRouteRoute: AppRouteRouteWithChildren,
   LoginRoute: LoginRoute,
-  ManageRoute: ManageRoute,
-  CollectionsIdRoute: CollectionsIdRoute,
   SneakersIdRoute: SneakersIdRoute,
-  CollectionsIndexRoute: CollectionsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

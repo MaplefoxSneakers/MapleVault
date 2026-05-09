@@ -21,8 +21,7 @@ export function DeleteLocationDialog({ open, setOpen, _id }: DeleteLocationDialo
         setIsSaving(true);
 
         const result = await bridge.locations.remove({ data: { _id } });
-        if (result.success)
-            await queryClient.invalidateQueries({ queryKey: ["locations"] });
+        if (result.success) await queryClient.invalidateQueries({ queryKey: ["locations"] });
 
         setOpen(false);
         setIsSaving(false);

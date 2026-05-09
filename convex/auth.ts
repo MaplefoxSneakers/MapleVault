@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { guestMutation } from "./customFunctions";
+import type { MutationCtx } from "@db/server";
 
 const RATE_LIMIT_WINDOW_MS = 15 * 60 * 1000;
 const LOCKOUT_DURATION_MS = 15 * 60 * 1000;
@@ -13,10 +14,8 @@ export const guardLoginAttempt = guestMutation({
         const now = Date.now();
         const attempt = await getAttemptByKey(ctx, args.username);
 
-        if (!attempt)
-            return { allowed: true, retryAfterMs: 0 };
-        if (attempt.lockUntilMs > now)
-            return { allowed: false, retryAfterMs: attempt.lockUntilMs - now };
+        if (!attempt) return { allowed: true, retryAfterMs: 0 };
+        if (attempt.lockUntilMs > now) return { allowed: false, retryAfterMs: attempt.lockUntilMs - now };
         if (attempt.windowStartMs + RATE_LIMIT_WINDOW_MS <= now && attempt.failedCount > 0) {
             await ctx.db.patch(attempt._id, {
                 failedCount: 0,
@@ -40,8 +39,7 @@ export const recordLoginResult = guestMutation({
         const attempt = await getAttemptByKey(ctx, args.username);
 
         if (args.success) {
-            if (attempt)
-                await ctx.db.delete(attempt._id);
+            if (attempt) await ctx.db.delete(attempt._id);
 
             return;
         }
@@ -71,15 +69,14 @@ export const recordLoginResult = guestMutation({
     },
 });
 
-async function getAttemptByKey(ctx: any, key: string) {
+async function getAttemptByKey(ctx: MutationCtx, key: string) {
     const attempts = await ctx.db
         .query("loginAttempts")
-        .withIndex("by_key", (q: any) => q.eq("key", key))
+        .withIndex("by_key", q => q.eq("key", key))
         .collect();
 
     if (attempts.length > 1) {
-        for (const duplicate of attempts.slice(1))
-            await ctx.db.delete(duplicate._id);
+        for (const duplicate of attempts.slice(1)) await ctx.db.delete(duplicate._id);
     }
 
     return attempts[0] ?? null;

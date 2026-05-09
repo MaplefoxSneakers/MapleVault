@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { zid } from "convex-helpers/server/zod4";
-import { guestQuery, normalMutation } from "./customFunctions";
+import { guestQuery, memberMutation } from "./customFunctions";
 
 export const CollectionInsert = z.object({
     name: z.string(),
@@ -17,7 +17,7 @@ export const get = guestQuery({
     },
 });
 
-export const insert = normalMutation({
+export const insert = memberMutation({
     args: CollectionInsert,
     handler: async (ctx, args) => {
         await ctx.db.insert("collections", {
@@ -29,7 +29,7 @@ export const insert = normalMutation({
     },
 });
 
-export const update = normalMutation({
+export const update = memberMutation({
     args: CollectionUpdate,
     handler: async (ctx, args) => {
         const { _id, ...patch } = args;
@@ -38,7 +38,7 @@ export const update = normalMutation({
     },
 });
 
-export const remove = normalMutation({
+export const remove = memberMutation({
     args: CollectionRemove,
     handler: async (ctx, args) => {
         await ctx.db.delete(args._id);

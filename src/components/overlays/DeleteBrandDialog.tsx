@@ -21,8 +21,7 @@ export function DeleteBrandDialog({ open, setOpen, _id }: DeleteBrandDialogProps
         setIsSaving(true);
 
         const result = await bridge.brands.remove({ data: { _id } });
-        if (result.success)
-            await queryClient.invalidateQueries({ queryKey: ["brands"] });
+        if (result.success) await queryClient.invalidateQueries({ queryKey: ["brands"] });
 
         setOpen(false);
         setIsSaving(false);
