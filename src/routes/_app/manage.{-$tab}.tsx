@@ -151,10 +151,10 @@ function ManagePage() {
                                     <ConfigItem title="Display count when searching" description="Whether to display the count when searching pairs.">
                                         <Switch checked={config.showCountOnSearch} onCheckedChange={v => updateConfig.mutate({ ...config, showCountOnSearch: v })} />
                                     </ConfigItem>
-                                    <ConfigItem title="Least used pairs filter" description={'How long should take for a pair to be considered "least used" (in days).'}>
+                                    <ConfigItem title="Least used pairs filter" description={'How long should take for a pair to be considered "least used" (in days).'} wrap="mobile">
                                         <InputNumber value={config.leastUsedDuration} placeholder={defaultConfig.leastUsedDuration.toString()} min={1} max={365} onChange={v => updateConfig.mutate({ ...config, leastUsedDuration: v })} />
                                     </ConfigItem>
-                                    <ConfigItem title="Least used delay duration" description={'How long should a pair be delayed until it is considered "least used" again (in days).'}>
+                                    <ConfigItem title="Least used delay duration" description={'How long should a pair be delayed until it is considered "least used" again (in days).'} wrap="mobile">
                                         <InputNumber value={config.leastUsedDelayDuration} placeholder={defaultConfig.leastUsedDelayDuration.toString()} min={1} max={365} onChange={v => updateConfig.mutate({ ...config, leastUsedDelayDuration: v })} />
                                     </ConfigItem>
                                 </ConfigSection>
@@ -175,7 +175,7 @@ function ManagePage() {
                             </>
                         )}
                         <ConfigSection>
-                            <ConfigItem title="SneakrVault" description={`Version v${packageJson.version}`} wrap="mobile">
+                            <ConfigItem title="SneakrVault" description={`Version v${packageJson.version}`}>
                                 <a href={packageJson.repository.url.replace(/git\+|\.git/g, "")} target="_blank" rel="noreferrer">
                                     <Button variant="outline">
                                         <IconExternalLink className="size-4" data-icon="inline-start" />
