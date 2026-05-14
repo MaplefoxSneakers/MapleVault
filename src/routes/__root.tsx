@@ -1,4 +1,6 @@
 import { createRootRouteWithContext, HeadContent, redirect, Scripts } from "@tanstack/react-router";
+import { createIsomorphicFn } from "@tanstack/react-start";
+import { getRequestHeader } from "@tanstack/react-start/server";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import { ReactQueryDevtoolsPanel } from "@tanstack/react-query-devtools";
 import { TanStackDevtools } from "@tanstack/react-devtools";
@@ -7,6 +9,20 @@ import { checkAuth } from "@/data/auth";
 import bridge from "@/data/bridge";
 import appCss from "../styles.css?url";
 import type { QueryClient } from "@tanstack/react-query";
+
+function getViewportContentForUserAgent(userAgent: string) {
+    const isIosOnSafari = /iPhone|iPad|iPod/i.test(userAgent) && /Safari/i.test(userAgent);
+
+    if (isIosOnSafari) {
+        return "width=device-width, initial-scale=1, maximum-scale=1";
+    }
+
+    return "width=device-width, initial-scale=1";
+}
+
+const getViewportContent = createIsomorphicFn()
+    .server(() => getViewportContentForUserAgent(getRequestHeader("user-agent") ?? ""))
+    .client(() => getViewportContentForUserAgent(navigator.userAgent));
 
 export const Route = createRootRouteWithContext<{
     queryClient: QueryClient;
@@ -35,7 +51,7 @@ export const Route = createRootRouteWithContext<{
             },
             {
                 name: "viewport",
-                content: "width=device-width, initial-scale=1",
+                content: getViewportContent(),
             },
             {
                 title: "SneakrVault",
