@@ -1,3 +1,4 @@
+import { z } from "zod";
 import type bridge from "@/data/bridge";
 import type { Doc } from "@db/dataModel";
 
@@ -7,6 +8,8 @@ export type Location = Awaited<ReturnType<typeof bridge.locations.get>>[number];
 export type Brand = Awaited<ReturnType<typeof bridge.brands.get>>[number];
 export type Collection = Awaited<ReturnType<typeof bridge.collections.get>>[number];
 
+export const sneakerTypes = ["Sneakers", "Shoes", "Boots", "Flip-flops"] as const;
+
 export interface Search {
     term: string;
     location?: Doc<"sneakers">["location"];
@@ -15,3 +18,12 @@ export interface Search {
     type?: Doc<"sneakers">["type"];
     decommissioned?: Doc<"sneakers">["decommissioned"];
 }
+
+export const searchQuerySchema = z.object({
+    term: z.string().optional(),
+    location: z.string().optional(),
+    brand: z.string().optional(),
+    owner: z.string().optional(),
+    type: z.enum(sneakerTypes).optional(),
+    decommissioned: z.enum(["true", "false"]).optional(),
+});

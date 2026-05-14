@@ -61,6 +61,7 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
     const [authenticityTag, setAuthenticityTag] = useState(sneaker?.authenticityTag ?? "");
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string>();
+    const ownerCombobox = useRef<HTMLDivElement>(null);
     const originalOwnerCombobox = useRef<HTMLDivElement>(null);
     const { data: brands } = useQuery({
         queryKey: ["brands"],
@@ -77,8 +78,8 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
     const queryClient = useQueryClient();
 
     const fractions: Record<string, string> = { "1/2": "½", "1/3": "⅓", "2/3": "⅔" };
-    const isValidStockxUrl = (url: string) => /^https:\/\/(www\.)?stockx\.com\/[a-zA-Z0-9-]+$/g.test(url);
-    const isValidGoatUrl = (url: string) => /^https:\/\/(www\.)?goat\.com\/sneakers\/[a-zA-Z0-9-]+$/g.test(url);
+    const isValidStockxUrl = (url: string) => /^https:\/\/(www\.)?stockx\.com\/[a-zA-Z0-9-_]+$/g.test(url);
+    const isValidGoatUrl = (url: string) => /^https:\/\/(www\.)?goat\.com\/sneakers\/[a-zA-Z0-9-_]+$/g.test(url);
 
     function parseSize(size: string) {
         if (!/^[\d./½⅓⅔]*$/.test(size)) return;
@@ -281,10 +282,10 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                 <TabsContent value="details">
                     <FieldGroup>
                         <div className="flex gap-2">
-                            <Field>
+                            <Field className="flex-1">
                                 <Label htmlFor="sneakerBrand">Brand</Label>
                                 <Select value={brand} disabled={isSaving} onValueChange={e => setBrand(e ?? "")}>
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger>
                                         {!selBrand ? (
                                             "Select a brand"
                                         ) : (
@@ -304,10 +305,10 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                                     </SelectContent>
                                 </Select>
                             </Field>
-                            <Field>
+                            <Field className="flex-1">
                                 <Label htmlFor="sneakerLocation">Location</Label>
                                 <Select value={location} disabled={isSaving} onValueChange={e => setLocation(e ?? "outside")}>
-                                    <SelectTrigger className="w-full">{!selLocation ? "Select a location" : typeof selLocation === "object" ? selLocation.name : "Outside"}</SelectTrigger>
+                                    <SelectTrigger>{!selLocation ? "Select a location" : typeof selLocation === "object" ? selLocation.name : "Outside"}</SelectTrigger>
                                     <SelectContent>
                                         {(locations ?? []).map(l => (
                                             <SelectItem value={l._id} key={l._id}>
@@ -334,10 +335,10 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                             </div>
                         </Field>
                         <div className="flex gap-2">
-                            <Field>
+                            <Field className="flex-1">
                                 <Label htmlFor="sneakerType">Type</Label>
                                 <Select value={type} disabled={isSaving} onValueChange={e => setType(e ?? "Sneakers")}>
-                                    <SelectTrigger className="w-full">
+                                    <SelectTrigger>
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -348,7 +349,7 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                                     </SelectContent>
                                 </Select>
                             </Field>
-                            <Field>
+                            <Field className="flex-1">
                                 <Label htmlFor="sneakerDate">Acquisition Date</Label>
                                 <Popover>
                                     <PopoverTrigger
@@ -407,26 +408,33 @@ function AddSneakerDialogContent({ setOpen, sneaker }: Omit<AddSneakerDialogProp
                             </Field>
                         </div>
                         <div className="flex gap-2">
-                            <Field>
+                            <Field className="flex-1">
                                 <Label htmlFor="sneakerOwner">Owner</Label>
-                                <Select value={owner} disabled={isSaving} onValueChange={e => setOwner(e ?? "")}>
-                                    <SelectTrigger className="w-full">
-                                        <div className="flex items-center gap-2">
-                                            <div className="size-2.5 rounded-full" style={{ backgroundColor: selOwner?.color || "var(--color-muted-foreground)" }} />
-                                            {!selOwner ? "Select an owner" : selOwner.username}
-                                        </div>
-                                    </SelectTrigger>
-                                    <SelectContent className="w-(--anchor-width) min-w-auto">
-                                        {(owners ?? []).map(o => (
-                                            <SelectItem value={o._id} key={o._id} showIndicator={false}>
-                                                <div className="size-2.5 rounded-full" style={{ backgroundColor: o.color }} />
-                                                <span className="truncate">{o.username}</span>
-                                            </SelectItem>
-                                        ))}
-                                    </SelectContent>
-                                </Select>
+                                <Combobox items={owners ?? []} value={owner} disabled={isSaving} onValueChange={e => setOwner(e ?? "")}>
+                                    <ComboboxInput placeholder="Select an owner" value={selOwner?.username} ref={ownerCombobox} disabled={isSaving} readOnly>
+                                        <InputGroupAddon className="pl-2.5 pr-0.5">
+                                            <div
+                                                className="size-2.5 rounded-full"
+                                                style={{
+                                                    backgroundColor: selOwner?.color || "var(--color-muted-foreground)",
+                                                }}
+                                            />
+                                        </InputGroupAddon>
+                                    </ComboboxInput>
+                                    <ComboboxContent anchor={ownerCombobox}>
+                                        <ComboboxEmpty>No owners found</ComboboxEmpty>
+                                        <ComboboxList className="pb-0">
+                                            {(owner: User) => (
+                                                <ComboboxItem key={owner._id} value={owner._id} className="pr-2">
+                                                    <div className="size-2.5 shrink-0 rounded-full" style={{ backgroundColor: owner.color }} />
+                                                    <span className="truncate">{owner.username}</span>
+                                                </ComboboxItem>
+                                            )}
+                                        </ComboboxList>
+                                    </ComboboxContent>
+                                </Combobox>
                             </Field>
-                            <Field>
+                            <Field className="flex-1">
                                 <Label htmlFor="sneakerOriginalOwner">Original owner</Label>
                                 <Combobox items={owners ?? []} value={originalOwnerId} disabled={isSaving} onValueChange={e => e && (e === "unknown" ? onCustomSelect("Unknown") : onSelect(e))}>
                                     <ComboboxInput placeholder="Select an owner" value={originalOwnerName} ref={originalOwnerCombobox} disabled={isSaving} onChange={e => onCustomSelect(e.target.value)}>

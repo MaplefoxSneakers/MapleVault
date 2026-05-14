@@ -3,6 +3,7 @@ import { IconLayoutGrid, IconSearch } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { SneakerCard, SneakerCardSkeleton } from "@/components/SneakerCard";
 import bridge from "@/data/bridge";
+import { usePruneSneakerImageCache } from "@/lib/sneakerImageCache";
 import { useConfig } from "@/lib/useConfig";
 import { creationSort, filterBySearch, hasSearched } from "@/lib/utils";
 import { Route } from "@/routes/__root";
@@ -22,6 +23,8 @@ export function GridBlock({ search, onAdd }: GridBlockProps) {
     const { auth } = Route.useRouteContext();
     const searched = hasSearched(search, config);
     const filtered = filterBySearch(sneakers ?? [], search);
+
+    usePruneSneakerImageCache(sneakers);
 
     return (
         <div className="px-6 md:px-8 flex flex-col gap-4">

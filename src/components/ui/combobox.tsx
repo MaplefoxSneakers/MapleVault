@@ -61,7 +61,7 @@ function ComboboxInput({
   ref?: React.Ref<HTMLDivElement>
 }) {
   return (
-    <InputGroup className={cn("w-auto", className)} ref={ref}>
+    <InputGroup className={cn("w-full", className)} ref={ref}>
       <ComboboxPrimitive.Input
         render={<InputGroupInput disabled={disabled} />}
         {...props}
