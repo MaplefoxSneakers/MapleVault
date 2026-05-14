@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from "react";
-import { createFileRoute } from "@tanstack/react-router";
+import { useRef, useState } from "react";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { IconFilter2, IconPlus, IconSearch, IconX } from "@tabler/icons-react";
 import { BlockManager } from "@/components/blocks/BlockManager";
@@ -11,26 +11,28 @@ import { Header } from "@/components/Header";
 import { UserMenu } from "@/components/UserMenu";
 import { checkAuth } from "@/data/auth";
 import bridge from "@/data/bridge";
+import { searchQuerySchema, sneakerTypes, type Search } from "@/lib/models";
 import { useLogout } from "@/lib/useLogout";
 import { useConfig } from "@/lib/useConfig";
 import { useOutsideClick } from "@/lib/useOutsideClick";
 import { allToUndefined, cn, decommissionTransformer } from "@/lib/utils";
-import type { Search } from "@/lib/models";
 import type { Id } from "@db/dataModel";
 
 export const Route = createFileRoute("/_app/")({
     component: Index,
     beforeLoad: () => checkAuth(),
+    validateSearch: searchQuerySchema,
 });
 
 function Index() {
     const [addDialogOpen, setAddDialogOpen] = useState(false);
-    const [search, setSearch] = useState<Search>({ term: "" });
     const [searchOpen, setSearchOpen] = useState(false);
     const [filtersOpen, setFiltersOpen] = useState(false);
     const [scrolling, setScrolling] = useState(false);
     const { config } = useConfig();
     const logout = useLogout();
+    const navigate = useNavigate({ from: Route.fullPath });
+    const searchParams = Route.useSearch();
     const { data: brands } = useQuery({
         queryKey: ["brands"],
         queryFn: bridge.brands.get,
@@ -45,7 +47,30 @@ function Index() {
     });
     const containerRef = useRef<HTMLDivElement>(null);
     const { auth } = Route.useRouteContext();
-    const sneakerTypes = ["Sneakers", "Shoes", "Boots", "Flip-flops"] as const;
+    const defaultType = allToUndefined(config.defaultTypeFilter);
+    const defaultDecommissioned = decommissionTransformer(config.defaultShowDecommissioned);
+    const search: Search = {
+        term: searchParams.term ?? "",
+        location: searchParams.location as Id<"locations"> | "outside" | undefined,
+        brand: searchParams.brand as Id<"brands"> | undefined,
+        owner: searchParams.owner as Id<"users"> | undefined,
+        type: searchParams.type ?? defaultType,
+        decommissioned: searchParams.decommissioned === "true" ? true : searchParams.decommissioned === "false" ? false : defaultDecommissioned,
+    } satisfies Search;
+
+    function setSearch(next: Search) {
+        navigate({
+            search: {
+                term: next.term || undefined,
+                location: next.location,
+                brand: next.brand,
+                owner: next.owner,
+                type: next.type === defaultType ? undefined : next.type,
+                decommissioned: next.decommissioned === defaultDecommissioned ? undefined : (next.decommissioned?.toString() as "true" | "false"),
+            },
+            replace: true,
+        });
+    }
 
     function addSneaker() {
         setAddDialogOpen(true);
@@ -60,10 +85,6 @@ function Index() {
         setSearchOpen(false);
         setFiltersOpen(false);
     }
-
-    useEffect(() => {
-        setSearch({ ...search, type: allToUndefined(config.defaultTypeFilter), decommissioned: decommissionTransformer(config.defaultShowDecommissioned) });
-    }, [config.defaultTypeFilter, config.defaultShowDecommissioned]);
 
     useOutsideClick(containerRef, () => setFiltersOpen(false));
 
